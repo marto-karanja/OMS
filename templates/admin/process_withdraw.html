@@ -1,0 +1,120 @@
+{% include "./header.html" %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Dashboard</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Dashboard v1</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!---Flask content goes here-->
+        <!-------------------------------------------------------------------------->
+        <div class="container-fluid">
+          <div class="row">
+            <!-- left column -->
+            <div class="col-md-12">
+              <!-- jquery validation -->
+              <div class="card card-primary">
+                <div class="card-header">
+                  <h3 class="card-title">withdrawals  <small></small></h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form id="quickForm">
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">FIRST NAME</label>
+                      <input type="email" name="email" class="form-control" id="exampleInputEmail1" placeholder="first name">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">LAST NAME</label>
+                      <input type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="last name">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">EMAIL</label>
+                      <input type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">DATE OF BIRTH</label>
+                      <input type="date" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter DOB">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="account_type">Account type :</label>
+                      <div class="form-select">
+                          <select name="city" id="city">
+                              <option value=""></option>
+                              <option value="savings">SAVINGS</option>
+                              <option value="current">CURRENT</option>
+                          </select>
+                          <span class="select-icon"><i class="zmdi zmdi-chevron-down"></i></span>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="exampleInputEmail1">ACCOUNT NUMBER</label>
+                    <input type="text" name="account number" class="form-control" id="exampleInputEmail1" placeholder="account number">
+                  </div>
+                    
+                  
+                      <div class="form-group">
+                          <label for="branch">Branch :</label>
+                          <div class="form-select">
+                              <select name="branch" id="state">
+                                  <option value=""></option>
+                                  <option value="us">NAIROBI</option>
+                                  <option value="uk">THIKA</option>
+                              </select>
+                              <span class="select-icon"><i class="zmdi zmdi-chevron-down"></i></span>
+                          </div>
+                    
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                    </div>
+                    
+                  </div>
+                  <!-- /.card-body -->
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </div>
+                </form>
+              </div>
+              <!-- /.card -->
+              </div>
+            <!--/.col (left) -->
+            <!-- right column -->
+            <div class="col-md-6">
+  
+            </div>
+            <!--/.col (right) -->
+          </div>
+          <!-- /.row -->
+        </div>
+               
+        <!--------------------------------------------------------------------------->
+        
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include "./base.html" %}
+  

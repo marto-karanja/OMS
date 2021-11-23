@@ -1,0 +1,219 @@
+{% include "./header.html" %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Customer Management [Add Customer]</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Dashboard v1</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!---Flask content goes here-->
+        <!-------------------------------------------------------------------------->
+        <div class="container-fluid">
+          {% with messages = get_flashed_messages() %}
+          {% if messages %}
+          <div class = "row">
+            <!-----Display alerts and notifications-->
+            <div class= "col-md-3"></div>
+            <div class= "col-md-6">
+                <div class="card card-information">
+                  <div class="card-header">
+                    <h3 class="card-title">Notifications</h3>
+    
+                    <div class="card-tools">
+                      <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
+                      </button>
+                    </div>
+                    <!-- /.card-tools -->
+                  </div>
+                  <!-- /.card-header -->
+                  <div class="card-body">
+                    {% for mesg in messages %}
+                    <div class="alert alert-info alert-dismissible">
+                      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                      <h5><i class="fas fa-check-circle"></i> Alert!</h5>
+                      {{ mesg }}
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <div class= "col-md-3"></div>
+          </div>
+          <!---End notification row-->
+          {% endif %}
+          {% endwith %}
+          <div class="row">
+            <!-- left column -->
+            <div class="col-md-6">
+              <!-- jquery validation -->
+              <div class="card card-primary">
+                <div class="card-header">
+                  <h3 class="card-title">Add customer  <small></small></h3>
+                </div>
+                <!-- /.card-header -->
+                <!-- form start -->
+                <form id="quickForm" action="/add_customer" method="post">
+                  <div class="card-body">
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">First Name</label>
+                      <input type="text" name="first_name" class="form-control" id="exampleInputEmail1" placeholder="first name">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Last Name</label>
+                      <input type="text" name="last_name" class="form-control" id="exampleInputEmail1" placeholder="last name">
+                    </div>
+                    
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Email</label>
+                      <input type="text" name="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Date of Birth (DOB)</label>
+                      <input type="date" name="date_of_birth" class="form-control" id="exampleInputEmail1" placeholder="Enter DOB">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputEmail1">Phone Number</label>
+                      <div class="input-group">
+                        <div class="input-group-prepend">
+                          <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        </div>
+                        <input type="text" name="phone" class="form-control" data-inputmask='"mask": "(999) 999-999"' data-mask="" inputmode="text">
+                      </div>
+
+                    </div>
+
+                    
+                  
+                    <div class="form-group">
+                      <label for="gender" class="radio-label">Gender :</label>
+                      <div class="form-radio-item">
+                          <input type="radio" name="gender" value="Male" id="male" checked>
+                          <label for="male">Male</label>
+                          <span class="check"></span>
+                      </div>
+                      <div class="form-group">
+                        <input type="radio" name="gender" value="Female" id="female">
+                        <label for="female">Female</label>
+                        <span class="check"></span>
+                    </div>
+                    <div class="form-group">
+                      <label for="account_type">Account type :</label>
+                      <div class="form-select">
+                          <select name="account_type" id="city">
+                              <option value=""></option>
+                              <option value="savings">SAVINGS</option>
+                              <option value="current">CURRENT</option>
+                          </select>
+                          <span class="select-icon"><i class="zmdi zmdi-chevron-down"></i></span>
+                      </div>
+                  </div>
+                    
+                    
+                  
+                      <div class="form-group">
+                          <label for="branch">Branch :</label>
+                          <div class="form-select">
+                              <select name="branch" id="state">
+                                  <option value=""></option>
+                                  <option value="Nairobi">NAIROBI</option>
+                                  <option value="Thika">THIKA</option>
+                              </select>
+                              <span class="select-icon"><i class="zmdi zmdi-chevron-down"></i></span>
+                          </div>
+                    
+
+                    
+                  </div>
+                  <!-- /.card-body -->
+                  <div class="card-footer">
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                  </div>
+                </form>
+              </div>
+              <!-- /.card -->
+              </div>
+            <!--/.col (left) -->
+            <!-- right column -->
+            <div class="col-md-6">
+  
+            </div>
+            <!--/.col (right) -->
+          </div>
+
+          <!-- /.row -->
+        </div>
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">view customers</h3>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th style="width: 10px">#</th>
+                    <th>Account Number</th>
+                    <th>Customer Name</th>
+                    <th>account type</th>
+                    <th>branch</th>
+                    <th style="width: 40px">View More</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for customer in customers %}
+                  <tr>
+                    <td>1.</td>
+                    <td><span>{{ customer.id }}</span></td>
+                    <td>{{ customer.name }} </td>
+                    <td><span >{{customer.account_type}}</span></td>
+                    <td><span >{{customer.branch}}</span></td>
+                    <td><span ></span></td>
+                  </tr>
+                  {% endfor %}
+                  
+                 
+                </tbody>
+              </table>
+            </div>
+            <!-- /.card-body -->
+            <div class="card-footer clearfix">
+              <ul class="pagination pagination-sm m-0 float-right">
+                <li class="page-item"><a class="page-link" href="#">«</a></li>
+                <li class="page-item"><a class="page-link" href="#">1</a></li>
+              </ul>
+            </div>
+          </div>
+          <!-- /.card -->
+
+        </div>
+               
+        <!--------------------------------------------------------------------------->
+        
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include "./base.html" %}
+  
