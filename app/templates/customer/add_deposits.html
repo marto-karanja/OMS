@@ -1,0 +1,124 @@
+{% include "customer/common/header.html" %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Make a deposit</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Dashboard v1</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!---Flask content goes here-->
+        <!---Notification Panel-->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class = "row">
+          <!-----Display alerts and notifications-->
+          <div class= "col-md-3"></div>
+          <div class= "col-md-6">
+              <div class="card card-information">
+                <div class="card-header">
+                  <h3 class="card-title">Notifications</h3>
+  
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <!-- /.card-tools -->
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  {% for mesg in messages %}
+                  <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="fas fa-check-circle"></i> Alert!</h5>
+                    {{ mesg }}
+                  </div>
+                  {% endfor %}
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+          </div>
+          <div class= "col-md-3"></div>
+        </div>
+        <!---End notification row-->
+        {% endif %}
+        {% endwith %}
+
+
+      <!----Deposit Form-->
+      <div class="row">
+
+        <div class="col-md-2"></div>
+        <!-- central column -->
+        <div class="col-md-8">
+          <!-- general form elements -->
+
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">
+                {% if customer_details is defined %}
+                  Customer: [{{ customer_details.user.name }}] Bank Balance [{{ customer_details.bank_balance }}]
+                {% else %} 
+                Customer Name
+                 {% endif %}
+                </h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form action="{{url_for('customer.add_deposits')}}" method="post">
+              {{ form.csrf_token }}
+              <div class="card-body">
+                <div class="form-group">
+                  {{form.amount.label}}
+                  {{form.amount(class="form-control")}}
+                </div>
+                <div class="form-group">
+                  {{ form.payment_method.label }}
+                  {{form.payment_method(class="form-control")}}
+                </div>
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer">
+                {{form.submit(class="btn btn-primary btn-large")}}
+              </div>
+              </form>
+
+              
+          </div>
+          <!--/.col (left) -->
+          
+        </div>
+        <!-- right -->
+        
+          <div class="col-md-2"></div>
+
+        </div>
+        <!--/.col (right) -->
+      </div>
+
+        <!---Flask content ends-->
+        
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include "customer/common/base.html" %}  

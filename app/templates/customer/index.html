@@ -1,0 +1,102 @@
+{% include "customer/common/header.html" %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-9">
+            <h1 class="m-0"> Welcome [{{ customer.user.name}}] to your Customer Dashboard </h1>
+          </div><!-- /.col -->
+          <div class="col-sm-3">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Dashboard v1</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!---Flask content goes here-->
+        <div class="row">
+          <!----Info dashboard widget-->
+          <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+              <div class="inner">
+                <h3>KES {{ customer.bank_balance }}</h3>
+
+                <p>{{ customer.user.name}}</p>
+              </div>
+              <div class="icon">
+                <i class="ion ion-person-add"></i>
+              </div>
+              <a href="/customer_transactions" class="small-box-footer">View All Transactions<i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-9 col-6">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">View Your Transactions</h2>
+              </div>
+              <!-- /.card-header -->
+              <div class="card-body">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Transaction Number</th>
+                      <th>Reference Number</th>
+                      <th>Transaction Time</th>
+                      <th>Transaction Amount</th>
+                      <th>Transaction Type</th>
+                      <th>Transaction Method</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for transaction in customer.transactions %}
+                    <tr>
+                      <td><span>{{ transaction.id }}</span></td>
+                      <td>{{ transaction.transaction_identifier }} </td>
+                      <td>{{ transaction.transaction_time }} </td>
+                      <td><strong>{{ transaction.amount }}</strong> </td>
+                      <td>{{ transaction.transaction_type.name}} </td>
+                      <td><span>{{ transaction.transaction_method.name}}</span></td>
+                    </tr>
+                    {% endfor %}
+                    
+                   
+                  </tbody>
+                </table>
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer clearfix">
+                <ul class="pagination pagination-sm m-0 float-right">
+                  <li class="page-item"><a class="page-link" href="#">«</a></li>
+                  <li class="page-item"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">3</a></li>
+                  <li class="page-item"><a class="page-link" href="#">»</a></li>
+                </ul>
+              </div>
+            </div>
+            <!-- /.card -->
+          </div>
+          
+        </div>
+
+        <!---Flask content ends-->
+        
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include "customer/common/base.html" %}
+  

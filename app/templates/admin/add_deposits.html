@@ -1,0 +1,145 @@
+{% include "header.html" %}
+
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1 class="m-0">Process Funds Dashboard</h1>
+          </div><!-- /.col -->
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-right">
+              <li class="breadcrumb-item"><a href="#">Home</a></li>
+              <li class="breadcrumb-item active">Dashboard v1</li>
+            </ol>
+          </div><!-- /.col -->
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <!---Flask content goes here-->
+        <!---Notification Panel-->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div class = "row">
+          <!-----Display alerts and notifications-->
+          <div class= "col-md-3"></div>
+          <div class= "col-md-6">
+              <div class="card card-information">
+                <div class="card-header">
+                  <h3 class="card-title">Notifications</h3>
+  
+                  <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                  <!-- /.card-tools -->
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                  {% for mesg in messages %}
+                  <div class="alert alert-info alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                    <h5><i class="fas fa-check-circle"></i> Alert!</h5>
+                    {{ mesg }}
+                  </div>
+                  {% endfor %}
+                </div>
+                <!-- /.card-body -->
+              </div>
+              <!-- /.card -->
+          </div>
+          <div class= "col-md-3"></div>
+        </div>
+        <!---End notification row-->
+        {% endif %}
+        {% endwith %}
+
+        <!---Search bar content-->
+        <h2 class="text-center display-4">Find Customer by Id:</h2>
+        <div class="row">
+          <div class="col-md-8 offset-md-2">
+              <form action="/find_customer_deposit" method="get">
+                  <div class="input-group">
+                      <input type="number" class="form-control form-control-lg" placeholder="Type customer id" name="customer_id">
+                      <div class="input-group-append">
+                          <button type="submit" class="btn btn-lg btn-default">
+                              <i class="fa fa-search"></i>
+                          </button>
+                      </div>
+                  </div>
+              </form>
+              <br><br>
+          </div>
+      </div>
+      <!----Deposit Form-->
+      <div class="row">
+
+        <div class="col-md-2"></div>
+        <!-- central column -->
+        <div class="col-md-8">
+          <!-- general form elements -->
+
+          <div class="card card-primary">
+            <div class="card-header">
+              <h3 class="card-title">
+                {% if customer_details is defined %}
+                  Customer: {{ customer_details.user.name }} Bank Balance [{{ customer_details.bank_balance }}]
+                {% else %} 
+                Customer Name
+                 {% endif %}
+                </h3>
+            </div>
+            <!-- /.card-header -->
+            <!-- form start -->
+            <form action="/add_deposits" method="post">
+              <div class="card-body">
+                <div class="form-group">
+                  <label for="customer_name">Customer Name</label>
+                  <input type="text" name="customer_name" class="form-control" id="customer_name" placeholder="" disabled {% if customer_details is defined %} value = "{{  customer_details.user.name }}" {% endif %}>
+                </div>
+                <div class="form-group">
+                  <label for="balance">Current balance</label>
+                  <input type="number" class="form-control" id="balance" placeholder="Amount (30,000)"  disabled {% if customer_details is defined %} name=bank_balance value ={{ customer_details.bank_balance }} {% endif %}>
+                </div>
+                <div class="form-group">
+                  <label for="amount">Amount Deposited</label>
+                  <input type="number" min=0 class="form-control" name="amount" id="amount" placeholder="Amount (30,000)" required>
+                  <input type="hidden" name = "customer_id" {% if customer_details is defined %} value = "{{ customer_details.id }}" {% endif %}>
+                </div>
+              </div>
+              <!-- /.card-body -->
+              <div class="card-footer">
+                <button type="submit" class="btn btn-primary btn-large">Process Deposit</button>
+              </div>
+              </form>
+
+              
+          </div>
+          <!--/.col (left) -->
+          
+        </div>
+        <!-- right -->
+        
+          <div class="col-md-2"></div>
+
+        </div>
+        <!--/.col (right) -->
+      </div>
+
+        <!---Flask content ends-->
+        
+      </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  {% include "base.html" %}
+  
