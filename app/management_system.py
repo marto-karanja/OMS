@@ -16,7 +16,7 @@ from werkzeug.security import generate_password_hash
 from .models import User, Customers, Transactions, TransactionType, TransactionMethod, AccountType
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
-from .forms import DepositForm
+from .forms import DepositForm, LoginForm
 from .mpesa import send_money_request
 
 
@@ -28,8 +28,9 @@ admin = Blueprint('admin', __name__)
 
 @admin.route('/', methods=["GET", "POST"])
 def home():
+    form = LoginForm()
 
-    return render_template("main_index.html")
+    return render_template("pages/writergigs_login.html", login_form = form)
 
 #-------------------------------------------------------------------------------------
 @admin.route('/dashboard', methods=["GET", "POST"])
@@ -37,8 +38,8 @@ def home():
 def dashboard():
     #print("Call sending message function")
     #send_message()
-    transactions = Transactions.query.all()
-    return render_template("admin/index.html", transactions = transactions, TransactionType = TransactionType)
+    #transactions = Transactions.query.all()
+    return render_template("admin/editor/editor_dashboard.html")
 
     
 #-------------------------------------------------------------------------------------
