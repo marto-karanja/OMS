@@ -1,0 +1,149 @@
+{% extends "base_templates/base.html" %}
+{% block title %}Bid Orders - OMS {% endblock %}
+{% block head %}
+    {{ super() }}
+
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
+       <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+       <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+       <!--[if lt IE 9]>
+       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+{% endblock %}
+{% block body %}
+<!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <div id="main-wrapper">
+
+        {% include 'base_templates/navigation.html' %}
+
+        <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <div class="page-breadcrumb">
+                <div class="row">
+                    <div class="col-5 align-self-center">
+                        <h4 class="page-title">Orders under Bid Status</h4>
+                        <div class="d-flex align-items-center">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{url_for('admin.dashboard')}}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Bid Orders</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                    <!--Remove  summary section-->
+                    <!--
+                    <div class="col-7 align-self-center">
+                        <div class="d-flex no-block justify-content-end align-items-center">
+                            <div class="mr-2">
+                                <div class="lastmonth"></div>
+                            </div>
+                            <div class=""><small>LAST MONTH</small>
+                                <h4 class="text-info mb-0 font-medium">$58,256</h4></div>
+                        </div>
+                    </div>-->
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+
+                <!---Content ???-->
+                <div class="row">
+                    <!-- Column -->
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-md-flex align-items-center">
+                                            <div>
+                                                <h4 class="card-title">Order Overview</h4>
+                                                <h5 class="card-subtitle">Overview of orders under Bid Status</h5>
+                                            </div>
+                                            <div class="ml-auto d-flex no-block align-items-center">
+                                                <div class="dl">
+                                                    <select class="custom-select">
+                                                        <option value="0" selected="">Monthly</option>
+                                                        <option value="1">Daily</option>
+                                                        <option value="2">Weekly</option>
+                                                        <option value="3">Yearly</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% import 'base_templates/admin_macros.html' as macros %}
+                                        {{ macros.render_orders_table(orders) }}
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+                <!----Content ends-->
+            
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Container fluid  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <footer class="footer text-center">
+       All Rights Reserved by <a href="#"> Writer's Gigs.</a> &copy; 2022</footer>
+            <!-- ============================================================== -->
+            <!-- End footer -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+</body>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="static/oms/gigs/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="static/oms/gigs/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <script src="static/oms/gigs/dist/js/app.min.js"></script>
+    <script src="static/oms/gigs/dist/js/app.init.js"></script>
+    <script src="static/oms/gigs/dist/js/app-style-switcher.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="static/oms/gigs/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="static/oms/gigs/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <script src="static/oms/gigs/dist/js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="static/oms/gigs/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="static/oms/gigs/dist/js/custom.min.js"></script>
+    <!--This page JavaScript -->
+
+{% endblock %}

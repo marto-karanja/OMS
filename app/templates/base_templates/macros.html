@@ -1,0 +1,359 @@
+{% macro render_orders_table(orders) %}
+{% if orders|length > 0 %}
+<div class="table-responsive">
+    
+    <table class="table no-wrap v-middle">
+        <thead>
+            <tr class="border-0">
+                <th class="border-0">Order Id</th>
+                <th class="border-0">Writer assigned</th>
+                <th class="border-0">Topic</th>
+                <th class="border-0">Deadline</th>
+                <th class="border-0">Price</th>
+                <th class="border-0">Status</th>
+                <th class="border-0">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for order in orders %}
+            <tr>
+                
+                <td><a href ="{{url_for('admin.edit_order', variable = order.id)}}">#{{order.id}}</a></td>
+                <td>
+                    {% if order.writer.name|length > 0 %}
+                        <h5 class="mb-0 font-16 font-medium">{{ order.writer.name }}</h5><span>{{order.writer.email}}</span>
+                    {% else %}
+                        <span>No writer assigned</span>
+                    {% endif %}
+                </td>
+                <td><a href ="{{url_for('admin.edit_order', variable = order.id)}}">{{order.topic}}</a></td>
+                <td><a href ="{{url_for('admin.edit_order', variable = order.id)}}">{{ order.difference }}</a></td>
+                <td class="blue-grey-text  text-darken-4 font-medium">KES {{order.price }}</td>
+                <td>
+                    {% if order.status.value == "In Progress" %}
+                        <i class="fa fa-circle text-orange" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Reassigned" %}
+                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}</i> {{order.status.value}}
+                    {% elif order.status.value == "Unassigned" %}
+                        <i class="fa fa-circle text-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Bid Status" %}
+                        <i class="fa fa-circle text-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Completed" %}
+                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Revision" %}
+                        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Finished" %}
+                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Paid" %}
+                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% endif %}
+                </td>
+                <td><a type="button" href="{{url_for('admin.edit_order', variable = order.id)}}" class="btn waves-effect waves-light btn-rounded btn-primary">View Details</a></td>
+                
+            </tr>
+            {% endfor %}
+            
+            
+        </tbody>
+    </table>
+    
+</div>
+{% else %}
+<div class="alert alert-primary"> <i class="ti-notepad"></i> No orders in database yet. <a href={{url_for('admin.create_order')}}>Click to add a new order here </a>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro render_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            {% set msg = message.threads | last %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ msg.sent_to.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="javascript: void(0)"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ msg.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No messages yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+
+
+
+
+{% macro render_writers_table(orders) %}
+{% if orders|length > 0 %}
+<div class="table-responsive">
+    
+    <table class="table no-wrap v-middle">
+        <thead>
+            <tr class="border-0">
+                <th class="border-0">Order Id</th>
+                <th class="border-0">Writer assigned</th>
+                <th class="border-0">Topic</th>
+                <th class="border-0">Deadline</th>
+                <th class="border-0">Price</th>
+                <th class="border-0">Status</th>
+                <th class="border-0">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+            {% for order in orders %}
+            <tr>
+                
+                <td><a href ="{{url_for('writer.view_order', order_id = order.id)}}">#{{order.id}}</a></td>
+                <td>
+                    {% if order.writer.name|length > 0 %}
+                        <h5 class="mb-0 font-16 font-medium">{{ order.writer.name }}</h5><span>{{order.writer.email}}</span>
+                    {% else %}
+                        <span>No writer assigned</span>
+                    {% endif %}
+                </td>
+                <td><a href ="{{url_for('writer.view_order', order_id = order.id)}}">{{order.topic}}</a></td>
+                <td><a href ="{{url_for('writer.view_order', order_id = order.id)}}">{{ order.difference }}</a></td>
+                <td class="blue-grey-text  text-darken-4 font-medium">KES {{order.price }}</td>
+                <td>
+                    {% if order.status.value == "In Progress" %}
+                        <i class="fa fa-circle text-orange" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Reassigned" %}
+                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}</i> {{order.status.value}}
+                    {% elif order.status.value == "Unassigned" %}
+                        <i class="fa fa-circle text-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Bid Status" %}
+                        <i class="fa fa-circle text-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Completed" %}
+                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Revision" %}
+                        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Finished" %}
+                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% elif order.status.value == "Paid" %}
+                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
+                    {% endif %}
+                </td>
+                <td><a type="button" href="{{url_for('writer.view_order', order_id = order.id)}}" class="btn waves-effect waves-light btn-rounded btn-primary">View Details</a></td>
+                
+            </tr>
+            {% endfor %}
+            
+            
+        </tbody>
+    </table>
+    
+</div>
+{% else %}
+<div class="alert alert-primary"> <i class="ti-notepad"></i> You have no current orders <a href={{url_for('writer.view_available_orders')}}>Click to bid for a new order here. </a>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro render_order(order) %}
+<div class="table-responsive">
+    <table class="table table-hover table-primary">
+        <thead class="bg-primary text-white">
+            <tr>
+                <th scope="col"><strong>Order Status:</strong></th>
+                <td scope="col">{{order.status.value}}</td>
+                <th scope="col"><strong>Writer Assigned</strong></th>
+                <td scope="col">
+                    {% if order.writer.name != "" %}
+                        {{order.writer.name}}
+                    {% else %}
+                    <strong>None</strong>
+                    {% endif %}
+                </td>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th scope="col"><strong>Date:</strong></th>
+                <td scope="col">{{order.deadline.strftime('%Y-%m-%d %H:%M:%S')}}</td>
+                <th scope="col"><strong>Time remaining:</strong></th>
+                <td scope="col">{{order.time_remaining}}</td>
+            </tr>
+            <tr>
+                <th><strong>Topic:</strong></th>
+                <td>{{order.topic}}</td>
+                <th scope="row"><strong>No of Pages:</strong></th>
+                <td>{{order.number_words}}</td>
+            </tr>
+            <tr>
+                <th scope="row"><strong>Description:</strong></th>
+                <td colspan="3" style = "white-space: pre-wrap;"" >{{order.description}}</td>
+            </tr>
+            <tr>
+                <th><strong>Audience:</strong></th>
+                <td>{{order.audience}}</td>
+                <th scope="row"><strong>Medium:</strong></th>
+                <td>{{order.medium}}</td>
+            </tr>
+            <tr>
+                <th><strong>Article Tone:</strong></th>
+                <td>{{order.tone}}</td>
+                <th scope="row"><strong>Point of View:</strong></th>
+                <td>{{order.person.value}}</td>
+            </tr>
+            <tr>
+                <th><strong>English Variety:</strong></th>
+                <td>{{order.english_country.value}}</td>
+                <th scope="row"><strong>Example article:</strong></th>
+                <td>{{order.example}}</td>
+            </tr>
+            <tr>
+                <th scope="row"><strong>SEO Keywords:</strong></th>
+                <td colspan="3">{{order.seo}}</td>
+            </tr>
+            <tr>
+                <th scope="row"><strong>Business Descriptions:</strong></th>
+                <td colspan="3" style = "white-space: pre-wrap;">{{order.description}}</td>
+            </tr>
+            <tr>
+                <th scope="row"><strong>Comments:</strong></th>
+                <td colspan="3">{{order.comments}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+
+
+{% macro render_writers_files(file_form, order) %}
+<form enctype="multipart/form-data" method="post" action ="{{url_for('writer.upload_order_file', order_id = order.id)}}">
+    {{ file_form.csrf_token }}
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                {{ file_form.description(placeholder= "File description", class="form-control")}}
+            </div>
+        </div>
+        <!--/span-->
+        <div class="col-md-7">
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Upload Files</span>
+                </div>
+                <div class="custom-file">
+                    {{ file_form.files(placeholder= "Choose files. Hold shift to select multiple", class="form-control")}}
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-rounded btn-primary">Upload Files</button>                
+        </div>
+        <!--/span-->
+    </div>
+
+</form>
+{% if order.files|length > 0 %}
+<table class = "table table-striped">
+    <thead class ="bg-primary text-white">
+        <tr class="border-0">
+            <th class="border-0">Description</th>
+            <th class="border-0">File type</th>
+            <th class="border-0">Download Files</th>
+
+        </tr>
+    </thead>
+    {% for file in order.files%}
+    <tr>
+        <td> {{file.description}} </td>
+        <td> {{file.type.value}} </td>
+        <td>
+            {% set file_name = file.file_location.split('\\') %}
+            <a href="{{file.file_location}}" target="_blank" download> {{ file_name[-1]}}</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<div class="alert alert-primary"> <i class="ti-notepad"></i> No files have been uploaded for this order. </a>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+</div>
+{% endif %}
+{% endmacro %}
+{% macro render_message_form(message_form, order) %}
+<form  method="post" action ="{{url_for('writer.send_message', order_id = order.id)}}">
+    {{ message_form.csrf_token }}
+    <div class="form-group">
+        {{ message_form.subject(class="form-control", placeholder = "Subject") }}
+    </div>
+        <div class="form-group">
+            {{ message_form.to_department(class="form-control") }}
+        </div>
+
+            {{ message_form.message(class="summernote") }}
+        
+<button type="submit" class="btn btn-rounded btn-primary">Send Message</button>
+</form>
+{% endmacro %}
+<!-------unpaid orders macro-->
+{% macro render_unpaid_orders(orders) %}
+{% if orders|length > 0 %}
+<div class="card">
+<div class="card-body">
+    <h4 class="card-title">Order Overview</h4>
+    <h6 class="card-subtitle">Unpaid Orders summary</h6>
+    <table data-toggle="table" data-height="250" data-mobile-responsive="true" class="table-striped">
+        <thead>
+            <tr>
+                <th>Order No</th>
+                <th>Writer's Name</th>
+                <th>Paper Length</th>
+                <th>Price</th>               
+            </tr>
+        </thead>
+        <tbody>
+            {% set ns = namespace(sum = 0) %}
+            {% for order in orders %}
+            {% set ns.sum = order.price + ns.sum %}
+            <tr>
+                <td>#{{  order.id }}</td>
+                <td>{{ order.writer.name }}</td>
+                <td>
+                    {% import 'base_templates/admin_macros.html' as macros %}
+                    {{ macros.print_length(order.paper_length, order.page_words.value) }}
+                </td>
+                <td>KES {{ order.price }}/=</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3"><strong>Total Amount Pending:</strong></td>
+                <td><strong>KES {{ ns.sum }}/=</strong></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-info"> <i class="ti-notepad"></i> No pending payments.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}

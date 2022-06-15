@@ -30,11 +30,19 @@ def login():
             # if the above check passes, then we know the user has the right credentials
             login_user(user, remember=remember)
             session['user_id'] = user.id
+            session['name'] = user.name
+            session['email'] = user.email
             # check if customer is an employee or customer user
-            if user.user_type == AccountType.EMPLOYEE:
+            print (user.user_type.value)
+            if user.user_type.value == AccountType.ADMIN.value:
+                print("admin")
                 return redirect(url_for('admin.dashboard'))
-            elif user.user_type == AccountType.CUSTOMER:
-                return redirect(url_for ('customer.dashboard'))
+            if user.user_type.value == AccountType.EDITOR.value:
+                print("editor")
+                return redirect(url_for('admin.dashboard'))
+            elif user.user_type.value == AccountType.WRITER.value:
+                print("writer")
+                return redirect(url_for('writer.dashboard'))
     return render_template("pages/writergigs_login.html", login_form = form)
 
 
@@ -59,7 +67,7 @@ def signup():
             return redirect(url_for('auth.signup'))"""
 
         # create new user with the form data. Hash the password so plaintext version isn't saved.
-        new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'), user_type = AccountType.EMPLOYEE)
+        new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'), user_type = AccountType.EDITOR)
 
         # add the new user to the database
         db.session.add(new_user)

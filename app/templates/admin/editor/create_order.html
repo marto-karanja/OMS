@@ -1,0 +1,268 @@
+{% extends "base_templates/base.html" %}
+{% block title %}Orders Dashboard {% endblock %}
+{% block head %}
+    {{ super() }}
+
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.css" rel="stylesheet" type="text/css">
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.date.css" rel="stylesheet" type="text/css" >
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.time.css" rel="stylesheet" type="text/css">
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
+       <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+       <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+       <!--[if lt IE 9]>
+       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+{% endblock %}
+{% block body %}
+<!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <div id="main-wrapper">
+
+        {% include 'base_templates/navigation.html' %}
+
+        <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <div class="page-breadcrumb">
+                <div class="row">
+                    <div class="col-5 align-self-center">
+                        <h4 class="page-title">Editor's Dashboard: Create New Order</h4>
+                        <div class="d-flex align-items-center">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Create Order</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="col-7 align-self-center">
+                        <div class="d-flex no-block justify-content-end align-items-center">
+                            <div class="mr-2">
+                                <div class="lastmonth"></div>
+                            </div>
+                            <div class=""><small>LAST MONTH</small>
+                                <h4 class="text-info mb-0 font-medium">$58,256</h4></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+
+                <!---Content ???-->
+                <div class = "row">
+                    <!---Display messages-->
+                    <div class="col-sm-2"></div>
+                    <div class="col-sm-8">
+                        {% for message in get_flashed_messages() %}
+                            <!-- Dissmissal Alert -->
+                            <div class="alert alert-primary"> <i class="ti-user"></i> {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-sm-2"></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-10">
+                        <div class="card card-body">
+                            <h4 class="card-title">Create Order</h4>
+                            <h5 class="card-subtitle"> Enter order details </h5>
+                            {% if order_form.errors %}
+                                    {% for field in order_form.errors %}
+                                        {% for error in order_form.errors[field] %}
+                                            <div class="alert alert-error">
+                                                <strong>Error! </strong>{{field}} : {{error}}
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
+                            <form method = "post" action="{{ url_for('admin.create_order')}}" class="form-horizontal mt-4">
+                                {{ order_form.csrf_token }}
+                                <div class="form-group">
+                                    <label>{{order_form.number_words.label}}</label>
+                                    {{ order_form.number_words( class="form-control")}}
+                                </div>
+                                <div class="form-group">
+                                    <label >{{order_form.topic.label}}</label>
+                                    {{ order_form.topic( class="form-control", placeholder = "E.g. Top 10 best Vietnamese foods")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.description.label}}</label>
+                                    {{ order_form.description( class="form-control", placeholder = "What would you like written about? Any specific structure we should follow? What’s the one value you hope to give your readers out of this content piece?")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.audience.label}}</label>
+                                    {{ order_form.audience( class="form-control", placeholder = "e.g.. who do you want to read this? Doctors, SaaS founders, etc?")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.medium.label}}</label>
+                                    {{ order_form.medium( class="form-control", placeholder = "e.g. landing page copy, blog post, long form article, social media post: Twitter, FB, IG, LinkedIn, Quora Response, etc.")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.tone.label}}</label>
+                                    {{ order_form.tone( class="form-control", placeholder = "Formal? Casual? Argumentative? Descriptive? If it’s easier just include a link to previous content that highlights this")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.person.label}}</label>
+                                    {{ order_form.person( class="form-control")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.english_country.label}}</label>
+                                    {{ order_form.english_country( class="form-control")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.example.label}}</label>
+                                    {{ order_form.example( class="form-control", placeholder = "A URL to the piece you’d like us to emulate would be helpful")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.research_links.label}}</label>
+                                    {{ order_form.research_links( class="form-control", placeholder = "Any useful research links that we can source?")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.seo.label}}</label>
+                                    {{ order_form.seo( class="form-control")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.description.label}}</label>
+                                    {{ order_form.description( class="form-control", placeholder = "This helps us understand who we’re ghostwriting for - and if needed can also backlink back to your business page (just mention that you’d like a back link/subtle reference included in the content)")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.comments.label}}</label>
+                                    {{ order_form.comments( class="form-control")}}
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.price.label}}</label>
+                                    {{ order_form.price( class="form-control", placeholder = "KES 0.0")}}
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">{{order_form.deadline_time.label }}</label>
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <span class="ti-alarm-clock"></span>
+                                                    </span>
+                                                </div>
+                                                {{order_form.deadline_time(class="form-control pickatime-formatTime-display picker__input", placeholder ="Click to choose time.")}}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--/span-->
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label class="control-label">{{order_form.deadline_date.label }}</label>
+                                            <div class="input-group-prepend">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">
+                                                        <span class="ti-calendar"></span>
+                                                    </span>
+                                                </div>
+                                                {{order_form.deadline_date(class="form-control pickadate", placeholder ="Click to choose day.")}}
+                                            </div>
+                                        </div>
+, 
+
+                                    </div>
+                                    <!--/span-->
+                                </div>
+                                <div class="form-group">
+                                    <label>{{order_form.order_status.label}}</label>
+                                    {{ order_form.order_status( class="form-control")}}
+                                </div>
+                                <button type="submit" class="btn btn-rounded btn-lg btn-primary">Create Order</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    
+                </div>
+  
+                <!----Content ends-->
+            
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Container fluid  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <footer class="footer text-center">
+       All Rights Reserved by <a href="#"> Writer's Gigs.</a> &copy; 2022</footer>
+            <!-- ============================================================== -->
+            <!-- End footer -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+</body>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+
+    <!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="static/oms/gigs/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="static/oms/gigs/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <script src="static/oms/gigs/dist/js/app.min.js"></script>
+    <script src="static/oms/gigs/dist/js/app.init.js"></script>
+    <script src="static/oms/gigs/dist/js/app-style-switcher.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="static/oms/gigs/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="static/oms/gigs/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <script src="static/oms/gigs/dist/js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="static/oms/gigs/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="static/oms/gigs/dist/js/custom.min.js"></script>
+    <!-- This Page JS -->
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.date.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.time.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/legacy.js"></script>
+    <script src="static/oms/gigs/assets/libs/moment/moment.js"></script>
+    <script>
+        $('.pickadate').pickadate();
+        $('.pickatime-formatTime-display').pickatime()
+    </script>
+
+
+{% endblock %}

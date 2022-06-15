@@ -1,0 +1,293 @@
+{% extends "base_templates/base.html" %}
+{% block title %}Edit Order: {{order.id}} {% endblock %}
+{% block head %}
+    {{ super() }}
+
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.css" rel="stylesheet" type="text/css">
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.date.css" rel="stylesheet" type="text/css" >
+       <link rel="stylesheet" type="text/css" href="static/oms/gigs/assets/libs/select2/dist/css/select2.min.css">
+       <link href="static/oms/gigs/assets/libs/pickadate/lib/themes/default.time.css" rel="stylesheet" type="text/css">
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
+
+       <link rel="stylesheet" type="text/css" href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css">
+       <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+       <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+       <!--[if lt IE 9]>
+       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+{% endblock %}
+{% block body %}
+<!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <div id="main-wrapper">
+
+        {% include 'base_templates/navigation.html' %}
+
+        <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <div class="page-breadcrumb">
+                <div class="row">
+                    <div class="col-5 align-self-center">
+                        <h4 class="page-title">Editor's Dashboard: Edit Order #{{order.id}}</h4>
+                        <div class="d-flex align-items-center">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{url_for('admin.dashboard')}}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Edit Order</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+
+                <!---Content ???-->
+                <div class = "row">
+                    <!---Display messages-->
+                    
+                    <div class="col-sm-8">
+                        {% for message in get_flashed_messages() %}
+                            <!-- Dissmissal Alert -->
+                            <div class="alert alert-primary"> <i class="ti-user"></i> {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-9">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Order #{{order.id}} Details</h4>
+                                <h6 class="card-subtitle">Date created:<code>{{order.time_created}}</code> Last updated <code>{{order.last_edited }}</code></h6>
+                                {% import 'base_templates/admin_macros.html' as macros %}
+                                <!-- Nav tabs -->
+                                <ul class="nav nav-tabs" role="tablist">
+                                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#order" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">Order Instructions</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#files" role="tab"><span class="hidden-sm-up"><i class="ti-briefcase"></i></span> <span class="hidden-xs-down">Order Files</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link  active" data-toggle="tab" href="#messages" role="tab"><span class="hidden-sm-up"><i class="ti-email"></i></span> <span class="hidden-xs-down">Messages</span></a> </li>
+                                </ul>
+                                <!-- Tab panes -->
+                                <div class="tab-content tabcontent-border">
+                                    <div class="tab-pane p-20" id="order" role="tabpanel">
+                                        {{ macros.render_admin_order(order) }}
+                                    </div>
+                                    <div class="tab-pane  p-20" id="files" role="tabpanel">
+                                        {{ macros.render_admin_files(file_form, order) }}
+                                    </div>
+                                    <div class="tab-pane active" id="messages" role="tabpanel">
+                                        <br>
+                                        {{ macros.render_messages(messages) }}
+                                        {{ macros.render_message_form(message_form, order) }}
+
+
+
+                                        
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="card-title">Edit Order Status</h4>
+                                <h6 class="card-subtitle">Assign & set status for this order<code> #{{order.id}}</code></h6>
+                                {% if assign_form.errors %}
+                                    {% for field in assign_form.errors %}
+                                        {% for error in assign_form.errors[field] %}
+                                            <div class="alert alert-error">
+                                                <strong>Error! </strong>{{field}} : {{error}}
+                                            </div>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <hr class="m-t-0">
+                            <form class="form-horizontal striped-rows b-form" method = "post" action="{{ url_for('admin.process_order', variable= order.id)}}">
+                                {{ assign_form.csrf_token }}
+                                <div class="card-body">
+                                    <div class="form-group row">
+                                        <div class="col-sm-3">
+                                            <div class="b-label">
+                                                <label for="inputEmail3" class="control-label col-form-label">{{assign_form.writer_name.label}}</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            {{assign_form.writer_name(class="select2 form-control custom-select", style="width: 100%;")}}
+                                        </div>
+                                    </div>
+                                    <!--Only show when order under bid status-->                                                    
+                                    <div class="form-group row">
+                                        <div class="col-sm-3">
+                                            <div class="b-label">
+                                                <label for="inputEmail3" class="control-label col-form-label">{{assign_form.bid_writers.label}}</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            {{assign_form.bid_writers(class="form-control")}}
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="col-sm-3">
+                                            <div class="b-label">
+                                                <label for="inputEmail3" class="control-label col-form-label">{{assign_form.order_status.label}}</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-9">
+                                            {{assign_form.order_status(class="form-control")}}
+                                        </div>
+                                    </div>
+                                    
+                                </div>
+                                <hr>
+                                <div class="card-body">
+                                    <div class="form-group m-b-0 text-right">
+                                        <button type="submit" class="btn btn-info waves-effect waves-light">Assign Order</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+  
+                <!----Content ends-->
+            
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Container fluid  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <footer class="footer text-center">
+       All Rights Reserved by <a href="#"> Writer's Gigs.</a> &copy; 2022</footer>
+            <!-- ============================================================== -->
+            <!-- End footer -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+</body>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+
+    <!-- ============================================================== -->
+    <!-- All Jquery -->
+    <!-- ============================================================== -->
+    <script src="static/oms/gigs/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="static/oms/gigs/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <script src="static/oms/gigs/dist/js/app.min.js"></script>
+    <script src="static/oms/gigs/dist/js/app.init.js"></script>
+    <script src="static/oms/gigs/dist/js/app-style-switcher.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="static/oms/gigs/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="static/oms/gigs/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <script src="static/oms/gigs/dist/js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="static/oms/gigs/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="static/oms/gigs/dist/js/custom.min.js"></script>
+    <!-- This Page JS -->
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.date.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/picker.time.js"></script>
+    <script src="static/oms/gigs/assets/libs/pickadate/lib/compressed/legacy.js"></script>
+    <script src="static/oms/gigs/assets/libs/moment/moment.js"></script>
+    <script src="static/oms/gigs/assets/libs/select2/dist/js/select2.full.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/select2/dist/js/select2.min.js"></script>
+    <script src="static/oms/gigs/dist/js/pages/forms/select2/select2.init.js"></script>
+    <script>
+        $('.pickadate').pickadate();
+        $('.pickatime-formatTime-display').pickatime()
+    </script>
+    <script src="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.min.js"></script>
+    <script>
+    /************************************/
+    //default editor
+    /************************************/
+    $('.summernote').summernote({
+        height: 350, // set editor height
+        minHeight: null, // set minimum height of editor
+        maxHeight: null, // set maximum height of editor
+        focus: false // set focus to editable area after initializing summernote
+    });
+
+    /************************************/
+    //inline-editor
+    /************************************/
+    $('.inline-editor').summernote({
+        airMode: true
+    });
+
+    /************************************/
+    //edit and save mode
+    /************************************/
+    window.edit = function() {
+            $(".click2edit").summernote()
+        },
+        window.save = function() {
+            $(".click2edit").summernote('destroy');
+        }
+
+    var edit = function() {
+        $('.click2edit').summernote({ focus: true });
+    };
+
+    var save = function() {
+        var markup = $('.click2edit').summernote('code');
+        $('.click2edit').summernote('destroy');
+    };
+
+    /************************************/
+    //airmode editor
+    /************************************/
+    $('.airmode-summer').summernote({
+        airMode: true
+    });
+    </script>
+
+
+
+
+{% endblock %}

@@ -12,3 +12,6 @@ config.json
 **/config.json
 /bot/build
 /build
+.archive
+*.zip
+/app/static/upload

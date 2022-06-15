@@ -1,0 +1,223 @@
+{% extends "base_templates/base.html" %}
+{% block title %}Writer Overview - OMS{% endblock %}
+{% block head %}
+    {{ super() }}
+
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/libs/bootstrap-table/dist/bootstrap-table.min.css" rel="stylesheet" type="text/css" />
+       <!-- Custom CSS -->
+       <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
+       <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+       <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+       <!--[if lt IE 9]>
+       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+       <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+{% endblock %}
+{% block body %}
+<!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+    <div class="preloader">
+        <div class="lds-ripple">
+            <div class="lds-pos"></div>
+            <div class="lds-pos"></div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <div id="main-wrapper">
+
+        {% include 'base_templates/navigation.html' %}
+
+        <!-- ============================================================== -->
+        <!-- Page wrapper  -->
+        <!-- ============================================================== -->
+        <div class="page-wrapper">
+            <!-- ============================================================== -->
+            <!-- Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <div class="page-breadcrumb">
+                <div class="row">
+                    <div class="col-5 align-self-center">
+                        <h4 class="page-title">Writer Overview Dashboard</h4>
+                        <div class="d-flex align-items-center">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item"><a href="{{url_for('writer.dashboard')}}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Library</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Bread crumb and right sidebar toggle -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- Container fluid  -->
+            <!-- ============================================================== -->
+            <div class="container-fluid">
+                <!-- ============================================================== -->
+
+                <!---Content ???-->
+                <div class="row">
+                    <!-- Column -->
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="d-md-flex align-items-center">
+                                            <div>
+                                                <h4 class="card-title">Active writers</h4>
+                                                <h5 class="card-subtitle">Overview of writer profiles</h5>
+                                            </div>
+                                            <div class="ml-auto d-flex no-block align-items-center">
+                                                <div class="dl">
+                                                    <select class="custom-select">
+                                                        <option value="0" selected="">Monthly</option>
+                                                        <option value="1">Daily</option>
+                                                        <option value="2">Weekly</option>
+                                                        <option value="3">Yearly</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        
+                                    </div>
+                                </div>
+                            <!------Content------------------------------>
+                            {% import 'base_templates/admin_macros.html' as macros %}
+                            {{display_writers(writers)}}
+                            
+                        
+
+                                
+
+
+                            <!------Content------------------------------>
+                            </div>
+                </div>
+                <!----Content ends-->
+            
+            </div>
+            <!-- ============================================================== -->
+            <!-- End Container fluid  -->
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
+            <!-- footer -->
+            <!-- ============================================================== -->
+            <footer class="footer text-center">
+       All Rights Reserved by <a href="#"> Writer's Gigs.</a> &copy; 2022</footer>
+            <!-- ============================================================== -->
+            <!-- End footer -->
+            <!-- ============================================================== -->
+        </div>
+        <!-- ============================================================== -->
+        <!-- End Page wrapper  -->
+        <!-- ============================================================== -->
+    </div>
+    <!-- ============================================================== -->
+    <!-- End Wrapper -->
+</body>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="static/oms/gigs/assets/libs/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap tether Core JavaScript -->
+    <script src="static/oms/gigs/assets/libs/popper.js/dist/umd/popper.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/bootstrap/dist/js/bootstrap.min.js"></script>
+    <!-- apps -->
+    <script src="static/oms/gigs/dist/js/app.min.js"></script>
+    <script src="static/oms/gigs/dist/js/app.init.js"></script>
+    <script src="static/oms/gigs/dist/js/app-style-switcher.js"></script>
+    <!-- slimscrollbar scrollbar JavaScript -->
+    <script src="static/oms/gigs/assets/libs/perfect-scrollbar/dist/perfect-scrollbar.jquery.min.js"></script>
+    <script src="static/oms/gigs/assets/extra-libs/sparkline/sparkline.js"></script>
+    <!--Wave Effects -->
+    <script src="static/oms/gigs/dist/js/waves.js"></script>
+    <!--Menu sidebar -->
+    <script src="static/oms/gigs/dist/js/sidebarmenu.js"></script>
+    <!--Custom JavaScript -->
+    <script src="static/oms/gigs/dist/js/custom.min.js"></script>
+    <!--This page JavaScript -->
+    
+    <!-- This Page JS -->
+    <script src="static/oms/gigs/assets/extra-libs/DataTables/datatables.min.js"></script>
+    <!-- start - This is for export functionality only -->
+    <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.flash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.1/js/buttons.print.min.js"></script>
+    <script src="static/oms/gigs/dist/js/pages/datatable/datatable-advanced.init.js"></script>
+
+{% endblock %}
+
+
+
+<!------Display writers macros-->
+{% macro display_writers(writers) %}
+<div class="card">
+    <div class="card-body">
+        <div class="d-flex no-block align-items-center mb-4">
+            <h4 class="card-title">All Contacts</h4>
+            <div class="ml-auto">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-dark" data-toggle="modal" data-target="#createmodel">
+                        Create New Contact
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="file_export" class="table table-bordered nowrap display">
+                <thead>
+                    <tr>
+                        <th> </th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th>Age</th>
+                        <th>Joining date</th>
+                        <th>Salery</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for writer in writers %}
+                    <tr>
+                        <td>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="customControlValidation2" required>
+                                <label class="custom-control-label" for="customControlValidation2"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="app-contact-detail.html"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30" /> {{ writer.name }}</a>
+                        </td>
+                        <td>{{ writer.email }}</td>
+                        <td>{{ writer.number }}</td>
+                        <td><span class="label label-danger">{{ writer.user_type.value }}</span> </td>
+                        <td>23</td>
+                        <td>{{ writer.date_joined }}</td>
+                        <td>$1200</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-icon btn-pure btn-outline delete-row-btn" data-toggle="tooltip" data-original-title="Delete"><i class="ti-close" aria-hidden="true"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% endmacro %}

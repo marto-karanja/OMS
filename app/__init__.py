@@ -6,6 +6,7 @@ from flask_login import LoginManager
 from flask_mail import Mail
 from config import config
 
+
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy()
 mail = Mail()
@@ -64,10 +65,10 @@ def create_app(config_name):
     app.register_blueprint(admin_blueprint)
 
     # blueprint for customer routes and controllers
-    # blueprint for non-auth parts of app
-    from .customer_system import customer as customer_blueprint
-    app.register_blueprint(customer_blueprint)
-    # from customer import customer as customer_blueprint
+ 
+
+    from .writer_views import writer as writer_blueprint
+    app.register_blueprint(writer_blueprint)
 
 
     return app

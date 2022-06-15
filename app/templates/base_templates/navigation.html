@@ -9,7 +9,7 @@
                     <!-- ============================================================== -->
                     <!-- Logo -->
                     <!-- ============================================================== -->
-                    <a class="navbar-brand" href="index.html">
+                    <a class="navbar-brand" href="{{url_for('admin.dashboard')}}">
                         <!-- Logo text -->
                         <span class="logo-text">
                              <!-- dark Logo text -->
@@ -301,8 +301,8 @@
                                 <div class="d-flex no-block align-items-center p-15 bg-primary text-white mb-2">
                                     <div class=""><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="img-circle" width="60"></div>
                                     <div class="ml-2">
-                                        <h4 class="mb-0">Steave Jobs</h4>
-                                        <p class=" mb-0">varun@gmail.com</p>
+                                        <h4 class="mb-0">{{ session['name'] }}</h4>
+                                        <p class=" mb-0">{{ session['email'] }}</p>
                                     </div>
                                 </div>
                                 <a class="dropdown-item" href="javascript:void(0)"><i class="ti-user mr-1 ml-1"></i> My Profile</a>
@@ -342,8 +342,8 @@
                                 <div class="user-pic"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="users" class="rounded-circle" width="40" /></div>
                                 <div class="user-content hide-menu ml-2">
                                     <a href="javascript:void(0)" class="" id="Userdd" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <h5 class="mb-0 user-name font-medium">Steave Jobs <i class="fa fa-angle-down"></i></h5>
-                                        <span class="op-5 user-email">varun@gmail.com</span>
+                                        <h5 class="mb-0 user-name font-medium">{{ session['name'] }} <i class="fa fa-angle-down"></i></h5>
+                                        <span class="op-5 user-email">{{ session['email'] }}</span>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right" aria-labelledby="Userdd">
                                         <a class="dropdown-item" href="javascript:void(0)"><i class="ti-user mr-1 ml-1"></i> My Profile</a>
@@ -358,35 +358,38 @@
                             </div>
                             <!-- End User Profile-->
                         </li>
-                        <li class="p-15 mt-2"><a href="javascript:void(0)" class="btn btn-block create-btn text-white no-block d-flex align-items-center"><i class="fa fa-plus-square"></i> <span class="hide-menu ml-1">Create New Order</span> </a></li>
+                        <li class="p-15 mt-2"><a href="{{url_for('admin.create_order')}}" class="btn btn-block create-btn text-white no-block d-flex align-items-center"><i class="fa fa-plus-square"></i> <span class="hide-menu ml-1">Create New Order</span> </a></li>
                         <!-- User Profile-->
                         <li class="nav-small-cap"><i class="mdi mdi-dots-horizontal"></i> <span class="hide-menu">Manage Orders</span></li>
                         <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-view-dashboard"></i><span class="hide-menu">Orders </span></a>
                             <ul aria-expanded="false" class="collapse  first-level">
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Available orders </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Orders in progress </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.all_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> All orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.available_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Unassigned Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.progress_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Orders in Progress </span></a></li>
                                 <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Edit Orders </span></a></li>
-                                <li class="sidebar-item"><a href="index4.html" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Overview </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Revision Orders </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Disputed Orders </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Cancelled Orders </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Completed Orders </span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Approved Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.bid_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Bid Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.revision_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Revision Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.disputed_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Disputed Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.cancelled_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Cancelled Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.finished_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Finished Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.completed_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Completed Orders </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.paid_orders')}}" class="sidebar-link"><i class="mdi mdi-adjust"></i><span class="hide-menu"> Paid Orders </span></a></li>
                             </ul>
                         </li>
 
                         <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-credit-card-multiple"></i><span class="hide-menu">Financial Overview</span></a>
                             <ul aria-expanded="false" class="collapse  first-level">
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-layers"></i><span class="hide-menu"> Unpaid Orders</span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-credit-card-scan"></i><span class="hide-menu">Paid Orders</span></a></li>
-                                <li class="sidebar-item"><a href="#" class="sidebar-link"><i class="mdi mdi-weather-fog"></i><span class="hide-menu">Writers Overview</span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.unpaid_orders')}}" class="sidebar-link"><i class="mdi mdi-layers"></i><span class="hide-menu"> Unpaid Orders</span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.payment_history')}}" class="sidebar-link"><i class="mdi mdi-credit-card-scan"></i><span class="hide-menu">Payment History</span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.unpaid_writers')}}" class="sidebar-link"><i class="mdi mdi-weather-fog"></i><span class="hide-menu">Writers Overview</span></a></li>
                             </ul>
                         </li>
 
 
-                        <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-inbox-arrow-down"></i><span class="hide-menu">Inbox </span></a>
+                        <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-inbox-arrow-down"></i><span class="hide-menu">Mailbox </span></a>
                             <ul aria-expanded="false" class="collapse  first-level">
-                                <li class="sidebar-item"><a href="inbox-email.html" class="sidebar-link"><i class="mdi mdi-email"></i><span class="hide-menu"> Email </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.view_inbox')}}" class="sidebar-link"><i class="mdi mdi-email"></i><span class="hide-menu"> Inbox </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('admin.view_outbox')}}" class="sidebar-link"><i class="mdi mdi-email"></i><span class="hide-menu"> Sent Messages </span></a></li>
                                 <li class="sidebar-item"><a href="inbox-email-detail.html" class="sidebar-link"><i class="mdi mdi-email-alert"></i><span class="hide-menu"> Email Detail </span></a></li>
                                 <li class="sidebar-item"><a href="inbox-email-compose.html" class="sidebar-link"><i class="mdi mdi-email-secure"></i><span class="hide-menu"> Email Compose </span></a></li>
                             </ul>
@@ -394,7 +397,7 @@
                         
 
                         
-                        <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-account-multiple"></i><span class="hide-menu">Users</span></a>
+                        <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark" href="{{ url_for('admin.view_writers') }}" aria-expanded="false"><i class="mdi mdi-account-multiple"></i><span class="hide-menu">Users</span></a>
                         </li>
                         <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="javascript:void(0)" aria-expanded="false"><i class="mdi mdi-ungroup"></i><span class="hide-menu">Settings</span></a>
                             <ul aria-expanded="false" class="collapse first-level">
