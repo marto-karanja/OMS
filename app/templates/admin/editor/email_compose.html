@@ -6,6 +6,9 @@
        <!-- Custom CSS -->
        <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
        <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
+       <!-- This Page CSS -->
+        <link href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css" rel="stylesheet">
+        <link href="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
        <!-- Custom CSS -->
        <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -63,8 +66,9 @@
             <div class="container-fluid">
                 <!-- ============================================================== -->
 
-                <!---Content starts---->
-                
+                <!---Content ???-->
+
+            <!-- ============================================================== -->
             <!-- ============================================================== -->
             <!-- Email App Part -->
             <!-- ============================================================== -->
@@ -125,61 +129,46 @@
                     </div>
                 </div>
                 <!-- ============================================================== -->
-                <!-- Right Part  Mail detail -->
+                <!-- Right Part  Mail Compose -->
                 <!-- ============================================================== -->
-                <div class="right-part mail-details bg-white">
-                    <div class="card-body bg-light">
-                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-reply"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-alert-octagon"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-delete"></i></button>
-                        </div>
-                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                            <div class="btn-group" role="group">
-                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-folder font-18 "></i> </button>
-                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
+                <div class="right-part mail-compose bg-white">
+                    <div class="p-20 border-bottom">
+                        <div class="d-flex align-items-center">
+                            <div>
+                                <h4>Compose</h4>
+                                <span>create new message</span>
                             </div>
-                            <div class="btn-group" role="group">
-                                <button id="btnGroupDrop2" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-label font-18"></i> </button>
-                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop2"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
+                            <div class="ml-auto">
+                                <button id="cancel_compose" class="btn btn-dark">Back</button>
                             </div>
                         </div>
                     </div>
-                    <div class="card-body border-bottom">
-                        <h4 class="mb-0">Your Message title goes here</h4>
-                    </div>
-                    <div class="card-body border-bottom">
-                        <div class="d-flex no-block align-items-center mb-5">
-                            <div class="mr-2"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="45"></div>
-                            <div class="">
-                                <h5 class="mb-0 font-16 font-medium">Hanna Gover <small> ( hgover@gmail.com )</small></h5><span>to Suniljoshi19@gmail.com</span>
-                            </div>
-                        </div>
-                        <h4 class="mb-3">Hey Hi,</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.</p>
-                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.</p>
-                    </div>
+                    <!-- Action part -->
+                    <!-- Button group part -->
                     <div class="card-body">
-                        <h4><i class="fa fa-paperclip mr-2 mb-2"></i> Attachments <span>(3)</span></h4>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img1.jpg"> </a>
+                        <form>
+                            <div class="form-group">
+                                <input type="email" id="example-email" name="example-email" class="form-control" placeholder="To">
                             </div>
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img2.jpg"> </a>
+                            <div class="form-group">
+                                <input type="text" id="example-subject" name="example-subject" class="form-control" placeholder="Subject">
                             </div>
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img3.jpg"> </a>
+                            <div id="summernote"></div>
+                            <h4>Attachment</h4>
+                            <div class="dropzone" id="dzid">
+                                <div class="fallback">
+                                    <input name="file" type="file" multiple />
+                                </div>
                             </div>
-                        </div>
-                        <div class="border mt-3 p-15">
-                            <p class="pb-3">click here to <a href="javascript:void(0)">Reply</a> or <a href="javascript:void(0)">Forward</a></p>
-                        </div>
+                            <button type="submit" class="btn btn-success mt-3"><i class="far fa-envelope"></i> Send</button>
+                            <button type="submit" class="btn btn-dark mt-3">Discard</button>
+                        </form>
+                        <!-- Action part -->
                     </div>
                 </div>
             </div>
                 
-                
+            
                 <!----Content ends-->
             
             </div>
@@ -223,5 +212,16 @@
     <!--Custom JavaScript -->
     <script src="static/oms/gigs/dist/js/custom.min.js"></script>
     <!--This page JavaScript -->
+    <script src="static/oms/gigs/dist/js/pages/email/email.js"></script>
+    <script src="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.min.js"></script>
+    <script src="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.js"></script>
+    <script>
+    $('#summernote').summernote({
+        placeholder: 'Type your email Here',
+        tabsize: 2,
+        height: 250
+    });
+    $("#dzid").dropzone({ url: "/file/post" });
+    </script>
 
 {% endblock %}

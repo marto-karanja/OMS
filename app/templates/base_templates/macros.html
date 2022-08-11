@@ -83,7 +83,7 @@
                     <h6 class="mb-0">{{ msg.sent_to.value }}</h6>
                 </td>
                 <!-- Message -->
-                <td class="max-texts"> <a class="link" href="javascript: void(0)"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = msg.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
                 <!-- Attachment -->
                 <td class="clip"><i class="fa fa-paperclip"></i></td>
                 <!-- Time -->
@@ -95,6 +95,40 @@
     </table>
 </div>
 </div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No messages yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+{% macro render_messages_list(messages) %}
+{% if messages|length > 0 %}
+
+
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            {% set msg = message.threads | last %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ msg.sent_to.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = msg.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ msg.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+
 {% else %}
             <div class="alert alert-primary"> <i class="ti-notepad"></i> No messages yet.
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>

@@ -48,7 +48,7 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="{{url_for('writer.dashboard')}}">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Payment History</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Writers overview</li>
                                 </ol>
                             </nav>
                         </div>
@@ -65,18 +65,6 @@
                 <!-- ============================================================== -->
 
                 <!---Content ???-->
-                <div class = "row">
-                    <!---Display messages-->
-                    
-                    <div class="col-sm-8">
-                        {% for message in get_flashed_messages() %}
-                            <!-- Dissmissal Alert -->
-                            <div class="alert alert-primary"> <i class="ti-user"></i> {{ message }}
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
                 <div class="row">
                     <!-- Column -->
                             <div class="col-lg-12">
@@ -84,8 +72,8 @@
                                     <div class="card-body">
                                         <div class="d-md-flex align-items-center">
                                             <div>
-                                                <h4 class="card-title">Financial Overview</h4>
-                                                <h5 class="card-subtitle">Overview of the latest pending payments</h5>
+                                                <h4 class="card-title">{{ orders[0].writer.name }} Financial Overview</h4>
+                                                <h5 class="card-subtitle">Overview of orders for payment period {[]}</h5>
                                             </div>
                                             <div class="ml-auto d-flex no-block align-items-center">
                                                 <div class="dl">
@@ -103,7 +91,8 @@
                                     </div>
                                 </div>
                                 <!------Content------------------------------>
-                                {{ render_payment_history(payments) }}
+                                {% import 'base_templates/admin_macros.html' as macros %}
+                                {{ macros.render_unpaid_orders(orders, form, zip) }}
                                 
 
 
@@ -160,46 +149,3 @@
     <script src="static/oms/gigs/dist/js/pages/tables/bootstrap-table.init.js"></script>
 
 {% endblock %}
-
-
-<!-------unpaid orders macro-->
-{% macro render_payment_history(payments) %}
-{% if payments|length > 0 %}
-<div class="card">
-<div class="card-body">
-    <h4 class="card-title">Order Overview</h4>
-    <h6 class="card-subtitle">Unpaid Orders summary</h6>
-    <table data-toggle="table" data-height="250" data-mobile-responsive="true" class="table-striped">
-        <thead>
-            <tr>
-                <th>Writer's Name</th>
-                <th>Date Paid</th>
-                <th>Description</th>
-                <th>Total Orders Paid</th>
-                <th>Total Amount Paid</th>                
-
-            </tr>
-        </thead>
-        <tbody>
-            {% for payment in payments %}
-            
-            <tr>                
-                <td><a href="{{url_for('admin.writer_paid_orders', writer_id= payment.writers.id)}}">{{  payment.writers.name }}</a></td>
-                <td>{{ payment.payment_date }}</td>
-                <td>{{ payment.description }}</td>
-                <td> {{payment.orders | length }}</td>
-                <td>{{ payment.amount_paid }}</td>
-                
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</form>
-</div>
-</div>
-{% else %}
-            <div class="alert alert-info"> <i class="ti-notepad"></i> No existing payment history.
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
-            </div>
-            {% endif %}
-{% endmacro %}

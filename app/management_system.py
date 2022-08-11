@@ -342,6 +342,9 @@ def unpaid_orders():
 
     return render_template("admin/editor/unpaid_orders.html", orders = orders, form = form, zip=zip)
 
+
+
+
 # return completed orders by a writer
 ###-------------------------------------------------------------------
 @admin.route('/writer_unpaid_orders?<writer_id>', methods = ["GET", "poST"])
@@ -365,6 +368,37 @@ def writer_unpaid_orders(writer_id):
         return redirect(url_for('admin.unpaid_orders'))
 
     return render_template("admin/editor/writer_unpaid_orders.html", orders = orders, form = form, zip=zip)
+
+
+
+
+# return aid orders by a writer
+###-------------------------------------------------------------------
+@admin.route('/writer_paid_orders?<writer_id>', methods = ["GET", "poST"])
+@login_required
+def writer_paid_orders(writer_id):
+    orders = Orders.query.filter((Orders.status == Status.paid) & (Orders.writer_id == writer_id)).all()
+
+    # create checkboxes
+    input_list = [str(order.id) for order in orders ]  # generate it as needed
+    prefs = create_dynamic_checkbox(input_list)
+    form = prefs(request.form)
+    if form.validate_on_submit():
+        
+        writer_ids = [field.name for field in form if field.data is True]
+        # store id in paid table
+        # for each writer fetch completed jobs
+        # save in paid tables
+        # update order status
+
+
+        return redirect(url_for('admin.unpaid_orders'))
+
+    return render_template("admin/editor/writer_paid_orders.html", orders = orders, form = form, zip=zip)
+
+
+
+
 
 
 # Return unpaid writers
@@ -627,6 +661,37 @@ def view_message(message_id):
     message_form = AdminMessageForm()
 
     return render_template("admin/editor/order_message_single.html", order= order, assign_form = form, file_form = file_form, message_form = message_form, detailed_message = message)
+
+
+
+
+#-view message detail
+####-------------------------------------------------------------------------
+@admin.route('/admin_view_message_detail?<message_id>', methods = ['GET', 'POST'])
+@login_required
+def view_message_detail(message_id):
+    page = request.args.get('page', 1, type=int)
+    messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
+
+
+    return render_template("admin/editor/message_detail.html", messages = messages.items)
+
+
+
+#-view compose email view
+####-------------------------------------------------------------------------
+@admin.route('/compose_email', methods = ['GET', 'POST'])
+@login_required
+def compose_email():
+
+    return render_template("admin/editor/email_compose.html")
+
+
+
+
+
+
+
 
     
 

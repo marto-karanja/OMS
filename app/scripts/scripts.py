@@ -529,7 +529,7 @@ def set_order_paid(order, action, writer_id, writer_name):
 
     reassign = False
 
-    current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
+    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
