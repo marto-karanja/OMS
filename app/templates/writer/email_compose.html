@@ -1,5 +1,5 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Outbox - {{ session['name'] }}'s sent messages{% endblock %}
+{% block title %}Admin Inbox {% endblock %}
 {% block head %}
     {{ super() }}
 
@@ -45,7 +45,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">{{ session['name'] }}'s Outbox</h4>
+                        <h4 class="page-title">Compose New Email</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -67,7 +67,9 @@
                 <!-- ============================================================== -->
 
                 <!---Content ???-->
-                
+
+            <!-- ============================================================== -->
+            <!-- ============================================================== -->
             <!-- Email App Part -->
             <!-- ============================================================== -->
             <div class="email-app">
@@ -127,69 +129,9 @@
                     </div>
                 </div>
                 <!-- ============================================================== -->
-                <!-- Right Part -->
-                <!-- ============================================================== -->
-                <div class="right-part mail-list bg-white">
-                    <div class="p-15 b-b">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <h4>Sentbox </h4>
-                                <span>Here is the list of sent mail</span>
-                            </div>
-                            <div class="ml-auto">
-                                <input placeholder="Search Mail" id="" type="text" class="form-control">
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Action part -->
-                    <!-- Button group part -->
-                    <div class="bg-light p-15 d-flex align-items-center do-block">
-                        <div class="btn-group mt-1 mb-1">
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input sl-all" id="cstall">
-                                <label class="custom-control-label" for="cstall">Check All</label>
-                            </div>
-                        </div>
-                        <div class="ml-auto">
-                            <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                                <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-reload"></i></button>
-                                <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-alert-octagon"></i></button>
-                                <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-delete"></i></button>
-                            </div>
-                            <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-folder font-18 "></i> </button>
-                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
-                                </div>
-                                <div class="btn-group" role="group">
-                                    <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-label font-18"></i> </button>
-                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Action part -->
-                    <!-- Mail list-->
-                    <div class="table-responsive">
-                        {% import 'base_templates/macros.html' as macros %}
-                        {{ macros.render_messages_list(messages)}}
-                    </div>
-                    <div class="p-15 mt-4">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Previous</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">1</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">2</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Next</a></li>
-                            </ul>
-                        </nav>
-                    </div>
-                </div>
-                <!-- ============================================================== -->
                 <!-- Right Part  Mail Compose -->
                 <!-- ============================================================== -->
-                <div class="right-part mail-compose bg-white" style="display: none;">
+                <div class="right-part mail-compose bg-white">
                     <div class="p-20 border-bottom">
                         <div class="d-flex align-items-center">
                             <div>
@@ -224,62 +166,9 @@
                         <!-- Action part -->
                     </div>
                 </div>
-                <!-- ============================================================== -->
-                <!-- Right Part  Mail detail -->
-                <!-- ============================================================== -->
-                <div class="right-part mail-details bg-white" style="display: none;">
-                    <div class="card-body bg-light">
-                        <button type="button" id="back_to_inbox" class="btn btn-outline-secondary font-18 mr-2"><i class="mdi mdi-arrow-left"></i></button>
-                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-reply"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-alert-octagon"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-delete"></i></button>
-                        </div>
-                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                            <div class="btn-group" role="group">
-                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-folder font-18 "></i> </button>
-                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
-                            </div>
-                            <div class="btn-group" role="group">
-                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-label font-18"></i> </button>
-                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body border-bottom">
-                        <h4 class="mb-0">Your Message title goes here</h4>
-                    </div>
-                    <div class="card-body border-bottom">
-                        <div class="d-flex no-block align-items-center mb-5">
-                            <div class="mr-2"><img src="../../assets/images/users/1.jpg" alt="user" class="rounded-circle" width="45"></div>
-                            <div class="">
-                                <h5 class="mb-0 font-16 font-medium">Hanna Gover <small> ( hgover@gmail.com )</small></h5><span>to Suniljoshi19@gmail.com</span>
-                            </div>
-                        </div>
-                        <h4 class="mb-3">Hey Hi,</h4>
-                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.</p>
-                        <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem.Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi.</p>
-                    </div>
-                    <div class="card-body">
-                        <h4><i class="fa fa-paperclip mr-2 mb-2"></i> Attachments <span>(3)</span></h4>
-                        <div class="row">
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img1.jpg"> </a>
-                            </div>
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img2.jpg"> </a>
-                            </div>
-                            <div class="col-md-2">
-                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img3.jpg"> </a>
-                            </div>
-                        </div>
-                        <div class="border mt-3 p-15">
-                            <p class="pb-3">click here to <a href="javascript:void(0)">Reply</a> or <a href="javascript:void(0)">Forward</a></p>
-                        </div>
-                    </div>
-                </div>
             </div>
-
+                
+            
                 <!----Content ends-->
             
             </div>

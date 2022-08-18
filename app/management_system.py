@@ -672,6 +672,7 @@ def view_message(message_id):
 def view_message_detail(message_id):
     page = request.args.get('page', 1, type=int)
     messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
+    
 
 
     return render_template("admin/editor/message_detail.html", messages = messages.items)

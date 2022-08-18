@@ -106,7 +106,7 @@
 {% if messages|length > 0 %}
 
 
-    <table class="table email-table no-wrap table-hover v-middle">
+    <table class="table no-wrap table-hover v-middle">
         <tbody>
             {% for message in messages %}
             {% set msg = message.threads | last %}
@@ -118,11 +118,11 @@
                     <h6 class="mb-0">{{ msg.sent_to.value }}</h6>
                 </td>
                 <!-- Message -->
-                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = msg.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <td> <a href="{{url_for('admin.view_message_detail', message_id = msg.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
                 <!-- Attachment -->
                 <td class="clip"><i class="fa fa-paperclip"></i></td>
                 <!-- Time -->
-                <td class="time"> {{ msg.timestamp}} </td>
+                <td class="time"> {{ msg.timestamp.strftime("%a %d %b-%H:%M %p")}} </td>
             </tr>
             {% endfor %}
             

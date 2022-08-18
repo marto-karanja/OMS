@@ -1,5 +1,5 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Outbox - {{ session['name'] }}'s sent messages{% endblock %}
+{% block title %}Admin Inbox {% endblock %}
 {% block head %}
     {{ super() }}
 
@@ -45,7 +45,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">{{ session['name'] }}'s Outbox</h4>
+                        <h4 class="page-title">{{ session['name'] }}'s Inbox</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -133,8 +133,8 @@
                     <div class="p-15 b-b">
                         <div class="d-flex align-items-center">
                             <div>
-                                <h4>Sentbox </h4>
-                                <span>Here is the list of sent mail</span>
+                                <h4>Mailbox </h4>
+                                <span>Here is the list of mail</span>
                             </div>
                             <div class="ml-auto">
                                 <input placeholder="Search Mail" id="" type="text" class="form-control">

@@ -329,6 +329,7 @@ class ThreadedMessages(db.Model):
     timestamp = db.Column(db.DateTime, index=True, server_default=func.now())
     sent_to = db.Column(db.Enum(Department))
     sent_from = db.Column(db.Enum(Department))
+    
 
     def __repr__(self):
         return '<Message {}>'.format(self.message)

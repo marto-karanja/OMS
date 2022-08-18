@@ -45,7 +45,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">{{ session['name'] }}'s Inbox</h4>
+                        <h4 class="page-title">Compose New Email</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -139,7 +139,7 @@
                                 <span>create new message</span>
                             </div>
                             <div class="ml-auto">
-                                <button id="cancel_compose" class="btn btn-dark">Back</button>
+                                <a class="btn btn-dark" href = "{{url_for('admin.view_inbox')}}">Back</a>
                             </div>
                         </div>
                     </div>
