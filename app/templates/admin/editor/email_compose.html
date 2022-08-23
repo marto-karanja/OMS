@@ -11,6 +11,8 @@
         <link href="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
        <!-- Custom CSS -->
        <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
+       <link rel="stylesheet" type="text/css" href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css">
+
        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
        <!--[if lt IE 9]>
@@ -72,62 +74,24 @@
             <!-- ============================================================== -->
             <!-- Email App Part -->
             <!-- ============================================================== -->
+            <div class = "row">
+                <!---Display messages-->
+                
+                <div class="col-sm-12">
+                    {% for message in get_flashed_messages() %}
+                        <!-- Dissmissal Alert -->
+                        <div class="alert alert-primary"> <i class="ti-user"></i> {{ message }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
             <div class="email-app">
                 <!-- ============================================================== -->
                 <!-- Left Part -->
                 <!-- ============================================================== -->
-                <div class="left-part">
-                    <a class="ti-menu ti-close btn btn-success show-left-part d-block d-md-none" href="javascript:void(0)"></a>
-                    <div class="scrollable" style="height:100%;">
-                        <div class="p-15">
-                            <a id="compose_mail" class="waves-effect waves-light btn btn-danger d-block" href="javascript: void(0)">Compose</a>
-                        </div>
-                        <div class="divider"></div>
-                        <ul class="list-group">
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Folders</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="active list-group-item-action"><i class="mdi mdi-inbox"></i> Inbox <span class="label label-success float-right">6</span></a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-star"></i> Starred </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-send"></i> Draft <span class="label label-danger float-right">3</span></a></li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-email"></i> Sent Mail </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-block-helper"></i> Spam </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-delete"></i> Trash </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Labels</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-danger mdi mdi-checkbox-blank-circle"></i> Work </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-cyan mdi mdi-checkbox-blank-circle"></i> Business </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-warning mdi mdi-checkbox-blank-circle"></i> Family </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-info mdi mdi-checkbox-blank-circle"></i> Friends </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                {% import 'base_templates/macros.html' as macros %}
+                {{ macros.render_message_navigation() }}
                 <!-- ============================================================== -->
                 <!-- Right Part  Mail Compose -->
                 <!-- ============================================================== -->
@@ -139,30 +103,15 @@
                                 <span>create new message</span>
                             </div>
                             <div class="ml-auto">
-                                <a class="btn btn-dark" href = "{{url_for('admin.view_inbox')}}">Back</a>
+                                <a class="btn btn-dark" href = "{{url_for('admin.view_inbox')}}">Return to Inbox</a>
                             </div>
                         </div>
                     </div>
                     <!-- Action part -->
                     <!-- Button group part -->
                     <div class="card-body">
-                        <form>
-                            <div class="form-group">
-                                <input type="email" id="example-email" name="example-email" class="form-control" placeholder="To">
-                            </div>
-                            <div class="form-group">
-                                <input type="text" id="example-subject" name="example-subject" class="form-control" placeholder="Subject">
-                            </div>
-                            <div id="summernote"></div>
-                            <h4>Attachment</h4>
-                            <div class="dropzone" id="dzid">
-                                <div class="fallback">
-                                    <input name="file" type="file" multiple />
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-success mt-3"><i class="far fa-envelope"></i> Send</button>
-                            <button type="submit" class="btn btn-dark mt-3">Discard</button>
-                        </form>
+                        {% import 'base_templates/admin/message_macros.html' as macros %}
+                        {{ macros.render_admin_message_form(message_form) }}
                         <!-- Action part -->
                     </div>
                 </div>
@@ -216,12 +165,52 @@
     <script src="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.min.js"></script>
     <script src="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.js"></script>
     <script>
-    $('#summernote').summernote({
-        placeholder: 'Type your email Here',
-        tabsize: 2,
-        height: 250
-    });
+
     $("#dzid").dropzone({ url: "/file/post" });
+
+    /************************************/
+    //default editor
+    /************************************/
+    $('.summernote').summernote({
+        placeholder: 'Type your message Here',
+        height: 350, // set editor height
+        minHeight: null, // set minimum height of editor
+        maxHeight: null, // set maximum height of editor
+        focus: false // set focus to editable area after initializing summernote
+    });
+
+    /************************************/
+    //inline-editor
+    /************************************/
+    $('.inline-editor').summernote({
+        airMode: true
+    });
+
+    /************************************/
+    //edit and save mode
+    /************************************/
+    window.edit = function() {
+            $(".click2edit").summernote()
+        },
+        window.save = function() {
+            $(".click2edit").summernote('destroy');
+        }
+
+    var edit = function() {
+        $('.click2edit').summernote({ focus: true });
+    };
+
+    var save = function() {
+        var markup = $('.click2edit').summernote('code');
+        $('.click2edit').summernote('destroy');
+    };
+
+    /************************************/
+    //airmode editor
+    /************************************/
+    $('.airmode-summer').summernote({
+        airMode: true
+    });
     </script>
 
 {% endblock %}

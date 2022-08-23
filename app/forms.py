@@ -113,6 +113,14 @@ class MessageForm(FlaskForm):
     message = TextAreaField('Message', validators=[InputRequired()])
     submit = SubmitField('Submit')
 
+class ReplyMessageForm(FlaskForm):
+    order_id = HiddenField("order_id")
+    thread_id = HiddenField("thread_id")
+    #to_department = SelectField('Message Recipient', validators=[InputRequired()], choices = [(Department.WRITER.name, Department.WRITER.value), (Department.EDITOR.name, Department.EDITOR.value),(Department.FINANCE.name, Department.FINANCE.value) , (Department.QUALITY.name, Department.QUALITY.value), (Department.CUSTOMER.name, Department.CUSTOMER.value)])
+    from_department = SelectField('Department from', validators=[InputRequired()], choices = [(Department.ADMIN.name, Department.ADMIN.value), (Department.EDITOR.name, Department.EDITOR.value),(Department.FINANCE.name, Department.FINANCE.value) , (Department.QUALITY.name, Department.QUALITY.value), (Department.CUSTOMER.name, Department.CUSTOMER.value)])
+    message = TextAreaField('Message', validators=[InputRequired()])
+    submit = SubmitField('Submit')
+
 
 ######--------------------------------------------------------------------
 class AdminMessageForm(FlaskForm):

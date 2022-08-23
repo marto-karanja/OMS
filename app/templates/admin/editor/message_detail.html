@@ -72,67 +72,18 @@
                 <!-- ============================================================== -->
                 <!-- Left Part -->
                 <!-- ============================================================== -->
-                <div class="left-part">
-                    <a class="ti-menu ti-close btn btn-success show-left-part d-block d-md-none" href="javascript:void(0)"></a>
-                    <div class="scrollable" style="height:100%;">
-                        <div class="p-15">
-                            <a id="compose_mail" class="waves-effect waves-light btn btn-danger d-block" href="javascript: void(0)">Compose</a>
-                        </div>
-                        <div class="divider"></div>
-                        <ul class="list-group">
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Folders</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="active list-group-item-action"><i class="mdi mdi-inbox"></i> Inbox <span class="label label-success float-right">6</span></a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-star"></i> Starred </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-send"></i> Draft <span class="label label-danger float-right">3</span></a></li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-email"></i> Sent Mail </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-block-helper"></i> Spam </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-delete"></i> Trash </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Labels</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-danger mdi mdi-checkbox-blank-circle"></i> Work </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-cyan mdi mdi-checkbox-blank-circle"></i> Business </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-warning mdi mdi-checkbox-blank-circle"></i> Family </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-info mdi mdi-checkbox-blank-circle"></i> Friends </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                {% import 'base_templates/macros.html' as macros %}
+                {{ macros.render_message_navigation() }}
                 <!-- ============================================================== -->
                 <!-- Right Part  Mail detail -->
                 <!-- ============================================================== -->
                 <div class="right-part mail-details bg-white">
                     <div class="card-body bg-light">
                         <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-reply"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-alert-octagon"></i></button>
-                            <button type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-delete"></i></button>
+                            {% if message.thread_id %}
+                            <a href="{{ url_for('admin.view_message_detail', message_id = message.thread_id) }}" type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-arrow-left"></i></a>
+                            {% endif %}
+                            
                         </div>
                         <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
                             <div class="btn-group" role="group">
@@ -146,17 +97,17 @@
                         </div>
                     </div>
                     <div class="card-body border-bottom">
-                        <h4 class="mb-0">Subject</h4>
+                        <h4 class="mb-0">{{ message.subject }}</h4>
                     </div>
                     <div class="card-body border-bottom">
                         <div class="d-flex no-block align-items-center mb-5">
                             <div class="mr-2"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="45"></div>
                             <div class="">
-                                <h5 class="mb-0 font-16 font-medium"> {{ messages[0].sent_to }}</small></h5><span>{{ messages[0].sent_from }}</span>
+                                <h5 class="mb-0 font-16 font-medium"> {{ message.sent_to.value }}</small></h5><span>{{ message.sent_from.value }}</span>
                             </div>
                         </div>
                         <h4 class="mb-3">Hey Hi,</h4>
-                        <p>{{messages[0].message}}</p>
+                        <p>{{message.message | safe}}</p>
                     </div>
                     <div class="card-body">
                         <h4><i class="fa fa-paperclip mr-2 mb-2"></i> Attachments <span>(3)</span></h4>
@@ -175,8 +126,15 @@
                             <p class="pb-3">click here to <a href="javascript:void(0)">Reply</a> or <a href="javascript:void(0)">Forward</a></p>
                         </div>
                     </div>
+                    <div class="card-body">
+                        <!----Threaded messages table-->
+                        {% import 'base_templates/admin_macros.html' as macros %}
+                        <h6 class="card-subtitle">Other messages in this thread</h6>
+                        {{ macros.render_mailbox_threaded_messages(threaded_messages) }}
+
+                    </div>
                 </div>
-                <!----Threaded messages table-->
+
             </div>
                 
                 

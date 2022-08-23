@@ -151,20 +151,19 @@
     <table class="table email-table no-wrap table-hover v-middle">
         <tbody>
             {% for message in messages %}
-            {% set msg = message.threads|last %}
             <!-- row -->
             <tr class="">
                 <!-- User -->
                 <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
                 <td class="user-name">
-                    <h6 class="mb-0">{{ msg.sent_from.value }}</h6>
+                    <h6 class="mb-0">{{ message.sent_from.value }}</h6>
                 </td>
                 <!-- Message -->
                 <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
                 <!-- Attachment -->
                 <td class="clip"><i class="fa fa-paperclip"></i></td>
                 <!-- Time -->
-                <td class="time"> {{ msg.timestamp}} </td>
+                <td class="time"> {{ message.timestamp}} </td>
             </tr>
             {% endfor %}
             
@@ -179,6 +178,95 @@
             {% endif %}
 {% endmacro %}
 
+
+{% macro render_threaded_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_from.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No other messages in this thread yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+
+
+{% macro render_mailbox_threaded_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_from.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No other messages in this thread yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+
+
+
+
+{% macro render_reply_message_form(message_form, order) %}
+<form  method="post" action ="{{url_for('admin.reply_order_message')}}">
+    {{ message_form.hidden_tag() }}
+        <div class="form-group">
+            From: {{ message_form.from_department(class="form-control") }}
+        </div>
+
+            {{ message_form.message(class="summernote") }}
+        
+<button type="submit" class="btn btn-rounded btn-primary">Reply</button>
+</form>
+{% endmacro %}
 
 
 {% macro render_single_message(detailed_message, order_id) %}

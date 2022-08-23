@@ -107,10 +107,13 @@
                                     </div>
                                     <div class="tab-pane active" id="messages" role="tabpanel">
 
-                                        {{ macros.render_single_message(detailed_message.threads|last, order.id) }}
-                                        {{ macros.render_message_form(message_form, order) }}
+                                        {{ macros.render_single_message(detailed_message, order.id) }}
                                         
-                                        {{ macros.render_messages(detailed_message.threaded_messages) }}
+                                        {{ macros.render_reply_message_form(message_form, order) }}
+                                        <br>
+                                        <h6 class="card-subtitle">Other messages in this thread</h6>
+                                        {{ macros.render_threaded_messages(messages) }}
+                                        
 
 
 

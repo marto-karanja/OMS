@@ -305,34 +305,38 @@ class Department(enum.Enum):
 
 #---------------------------------------------------
 
+class ThreadStatus(enum.Enum):
+    PARENT = "Parent thread"
+    CHILD = "Child thread"
+    DELETED = "Deleted"
+
+
+
+
+
+
+
+#-------------------------
 
 class Messages(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    threads = db.relationship('ThreadedMessages', backref='parent_thread', lazy='joined', order_by="ThreadedMessages.timestamp")
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    thread_id = db.Column(db.Integer, index=True,)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,)
     sender = db.relationship("User", back_populates="messages_sent", foreign_keys='Messages.sender_id')
-    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'), index=True,)
     order = db.relationship("Orders", back_populates="messages")
     #department = db.Column(db.Enum(Department)) # to be deleted
-    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), index=True,)
     recipient = db.relationship("User", back_populates="messages_received", foreign_keys='Messages.recipient_id')
 
     subject = db.Column(db.String(1000))
-
-
-
-#--------------------------------------------------------------------------------
-class ThreadedMessages(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    thread_id = db.Column(db.Integer, db.ForeignKey('messages.id'))   
     message = db.Column(db.Text())
     timestamp = db.Column(db.DateTime, index=True, server_default=func.now())
-    sent_to = db.Column(db.Enum(Department))
-    sent_from = db.Column(db.Enum(Department))
-    
+    sent_to = db.Column(db.Enum(Department), index=True,)
+    sent_from = db.Column(db.Enum(Department), index=True,)
+    thread_status = db.Column(db.Enum(ThreadStatus),server_default=ThreadStatus.CHILD.name)
 
-    def __repr__(self):
-        return '<Message {}>'.format(self.message)
+
 
 
 

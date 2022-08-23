@@ -13,6 +13,7 @@ from flask import url_for
 from flask import session
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload, contains_eager
+from sqlalchemy import desc
 from flask import current_app
 from flask import Markup
 from dateutil.parser import parse
@@ -21,10 +22,10 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, ThreadedMessages, Writers, Payments
+from .models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, Writers, Payments, ThreadStatus
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, create_dynamic_checkbox
+from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, create_dynamic_checkbox, ReplyMessageForm
 from .mpesa import send_money_request
 from .scripts.scripts import set_bidding_status, set_order_progress, set_order_unassigned, Actions, Operations, set_orders_as_paid
 
@@ -299,7 +300,7 @@ def view_order_messages(order_id):
 def prepare_order_views(order_id, template_string = None):
     # fetch customer by ID/ primary key
     order = Orders.query.get(order_id)
-    messages = order.messages
+    messages = Messages.query.filter((Messages.thread_status == ThreadStatus.PARENT) and (Messages.order_id == order_id)).all()
 
     form = AssignForm()
     if order.status == Status.bid_status:
@@ -498,24 +499,23 @@ def send_message(order_id):
 
     message_form = AdminMessageForm()
     if message_form.validate_on_submit():
+        order = Orders.query.get(order_id)
         
 
         
         message =  Messages(
             sender_id = session['user_id'],
-            #recipient_id = order.writer_id,
+            recipient_id = order.writer_id,
             subject = message_form.subject.data,
-            order_id = order_id
-           )
-        thread = ThreadedMessages(
+            order_id = order_id,
             message = message_form.message.data,
             sent_to = message_form.to_department.data,
             sent_from = message_form.from_department.data,
-            parent_thread = message
+            thread_status = ThreadStatus.PARENT
         )
         
         try:
-            db.session.add(thread)
+            db.session.add(message)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
@@ -612,7 +612,7 @@ def available_orders():
 def view_inbox():
     page = request.args.get('page', 1, type=int)
     #user = User.query.filter(User.id == session['user_id'])
-    messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
+    messages = Messages.query.filter(Messages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
 
     #messages = current_user.messages_sent.order_by(Messages.timestamp.desc()).all()
     return render_template("admin/editor/inbox.html", messages = messages.items)
@@ -624,13 +624,8 @@ def view_inbox():
 def view_outbox():
     page = request.args.get('page', 1, type=int)
     #user = User.query.filter(User.id == session['user_id'])
-    
-    #messages = current_user.messages_sent.order_by(Messages.threads.desc()).paginate(page, 10, False)
-    #messages = Messages.query.filter(Messages.sender_id == session['user_id']).paginate(page, 10, False)
 
-    #messages = ThreadedMessages.query.filter(ThreadedMessages.sent_from == Department.ADMIN).paginate(page, 10, False)
-
-    messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_from.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
+    messages = Messages.query.filter((Messages.sent_from.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])) & (Messages.thread_status == ThreadStatus.PARENT)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
 
     #messages = current_user.messages_sent.order_by(Messages.timestamp.desc()).all()
     return render_template("admin/editor/outbox.html", messages = messages.items)
@@ -658,9 +653,54 @@ def view_message(message_id):
     order.time_remaining = find_time_difference(order.deadline)
 
     file_form = FileForm()
-    message_form = AdminMessageForm()
+    message_form = ReplyMessageForm(order_id = order.id, thread_id = message.id)
+    
+    messages = Messages.query.filter(Messages.thread_id == message_id).order_by(desc(Messages.timestamp)).all()
 
-    return render_template("admin/editor/order_message_single.html", order= order, assign_form = form, file_form = file_form, message_form = message_form, detailed_message = message)
+    return render_template("admin/editor/order_message_single.html", order= order, assign_form = form, file_form = file_form, message_form = message_form, detailed_message = message, messages = messages)
+
+
+
+
+#-reply to a message order from order form
+####-------------------------------------------------------------------------
+@admin.route('/reply_order_message', methods = ['GET', 'POST'])
+@login_required
+def reply_order_message():
+    message_form = ReplyMessageForm()
+    if message_form.validate_on_submit():
+        parent_message = Messages.query.get(message_form.thread_id.data)
+        order = Orders.query.get(message_form.order_id.data)
+        
+
+        
+        message =  Messages(
+            sender_id = session['user_id'],
+            recipient_id = order.writer_id,
+            thread_id = message_form.thread_id.data,
+            subject = parent_message.subject,
+            order_id = message_form.order_id.data,
+            message = message_form.message.data,
+            sent_to = parent_message.sent_to,
+            sent_from = message_form.from_department.data,
+            thread_status = ThreadStatus.CHILD
+        )
+        
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            flash("Message was sent successully")
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+    return redirect(url_for("admin.edit_order", order_id = order.id, _anchor='files'))
 
 
 
@@ -671,11 +711,15 @@ def view_message(message_id):
 @login_required
 def view_message_detail(message_id):
     page = request.args.get('page', 1, type=int)
-    messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
+
+    threaded_messages = Messages.query.filter((Messages.thread_id == message_id)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
+    message = Messages.query.get(message_id)
+
+    #messages = Messages.query.join(ThreadedMessages).filter(ThreadedMessages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).paginate(page, 10, False)
     
 
 
-    return render_template("admin/editor/message_detail.html", messages = messages.items)
+    return render_template("admin/editor/message_detail.html", message = message, threaded_messages = threaded_messages.items)
 
 
 
@@ -684,12 +728,82 @@ def view_message_detail(message_id):
 @admin.route('/compose_email', methods = ['GET', 'POST'])
 @login_required
 def compose_email():
+    message_form = AdminMessageForm()
 
-    return render_template("admin/editor/email_compose.html")
+    return render_template("admin/editor/email_compose.html", message_form = message_form)
 
 
 
 
+####-------------------------------------------------------------------------
+@admin.route('/compose_admin_email', methods = ['GET', 'POST'])
+@login_required
+def compose_admin_message():
+    message_form = AdminMessageForm()
+    if message_form.validate_on_submit():
+        
+        message =  Messages(
+            sender_id = session['user_id'],
+            subject = message_form.subject.data,
+            message = message_form.message.data,
+            sent_to = message_form.to_department.data,
+            sent_from = message_form.from_department.data,
+            thread_status = ThreadStatus.PARENT
+        )
+        
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            
+            flash("Message was sent successully")
+            return redirect(url_for('admin.compose_email'))
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+    return render_template("admin/editor/email_compose.html", message_form = message_form)
+
+
+# delete messages from the main outbox
+####-------------------------------------------------------------------------
+@admin.route('/delete_admin_email?<message_id>', methods = ['GET', 'POST'])
+@login_required
+def delete_admin_message(message_id):
+    message = Messages.query.get(message_id)
+    message.thread_status = ThreadStatus.DELETED
+    try:
+        db.session.add(message)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        db.session.flush()
+        flash('Error: Message was not deleted')
+        print(e)
+    else:
+        # on successful saving
+
+        msg = f"Message was moved to <a href='{url_for('admin.view_trash')}'>Trash</a>"
+        
+        flash(Markup(msg))
+    
+    return redirect(url_for('admin.view_outbox'))
+
+####----------------------------------------------------------------------------------
+@admin.route('/admin_view_trash', methods = ['GET', 'POST'])
+@login_required
+def view_trash():
+    page = request.args.get('page', 1, type=int)
+    
+    messages = Messages.query.filter((Messages.sent_from.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])) & (Messages.thread_status == ThreadStatus.DELETED)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
+
+    
+    return render_template("admin/editor/trash.html", messages = messages.items)
 
 
 

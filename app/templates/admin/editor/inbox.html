@@ -73,59 +73,8 @@
             <div class="email-app">
                 <!-- ============================================================== -->
                 <!-- Left Part -->
-                <!-- ============================================================== -->
-                <div class="left-part">
-                    <a class="ti-menu ti-close btn btn-success show-left-part d-block d-md-none" href="javascript:void(0)"></a>
-                    <div class="scrollable" style="height:100%;">
-                        <div class="p-15">
-                            <a id="compose_mail" class="waves-effect waves-light btn btn-danger d-block" href="javascript: void(0)">Compose</a>
-                        </div>
-                        <div class="divider"></div>
-                        <ul class="list-group">
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Folders</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="active list-group-item-action"><i class="mdi mdi-inbox"></i> Inbox <span class="label label-success float-right">6</span></a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-star"></i> Starred </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-send"></i> Draft <span class="label label-danger float-right">3</span></a></li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-email"></i> Sent Mail </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-block-helper"></i> Spam </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-delete"></i> Trash </a>
-                            </li>
-                            <li class="list-group-item">
-                                <hr>
-                            </li>
-                            <li>
-                                <small class="p-15 grey-text text-lighten-1 db">Labels</small>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-danger mdi mdi-checkbox-blank-circle"></i> Work </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-cyan mdi mdi-checkbox-blank-circle"></i> Business </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-warning mdi mdi-checkbox-blank-circle"></i> Family </a>
-                            </li>
-                            <li class="list-group-item">
-                                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-info mdi mdi-checkbox-blank-circle"></i> Friends </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                {% import 'base_templates/macros.html' as macros %}
+                {{ macros.render_message_navigation() }}
                 <!-- ============================================================== -->
                 <!-- Right Part -->
                 <!-- ============================================================== -->

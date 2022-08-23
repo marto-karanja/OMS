@@ -1,5 +1,5 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Admin Outbox {% endblock %}
+{% block title %}Admin Trash {% endblock %}
 {% block head %}
     {{ super() }}
 
@@ -45,12 +45,12 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">{{ session['name'] }}'s Outbox</h4>
+                        <h4 class="page-title">{{ session['name'] }}'s Trash Box</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
                                     <li class="breadcrumb-item"><a href="{{url_for('writer.dashboard')}}">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Messages</li>
+                                    <li class="breadcrumb-item active" aria-current="page">Deleted Messages</li>
                                 </ol>
                             </nav>
                         </div>
@@ -95,8 +95,8 @@
                     <div class="p-15 b-b">
                         <div class="d-flex align-items-center">
                             <div>
-                                <h4>Sentbox </h4>
-                                <span>Here is the list of sent mail</span>
+                                <h4>Trash </h4>
+                                <span>Here is the list of deleted mail</span>
                             </div>
                             <div class="ml-auto">
                                 <input placeholder="Search Mail" id="" type="text" class="form-control">

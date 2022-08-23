@@ -23,7 +23,7 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, CompletedOrders, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, ThreadedMessages, Department
+from .models import BiddingOrders, CompletedOrders, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
 from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm
