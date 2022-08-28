@@ -82,7 +82,7 @@
                     <h6 class="mb-0">{{ message.sent_to.value }}</h6>
                 </td>
                 <!-- Message -->
-                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = msg.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <td class="max-texts"> <a class="link" href="{{url_for('admin.view_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
                 <!-- Attachment -->
                 <td class="clip"><i class="fa fa-paperclip"></i></td>
                 <!-- Time -->

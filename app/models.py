@@ -310,6 +310,10 @@ class ThreadStatus(enum.Enum):
     CHILD = "Child thread"
     DELETED = "Deleted"
 
+class ReadStatus(enum.Enum):
+    TRUE = "True"
+    FALSE = "False"
+
 
 
 
@@ -335,6 +339,8 @@ class Messages(db.Model):
     sent_to = db.Column(db.Enum(Department), index=True,)
     sent_from = db.Column(db.Enum(Department), index=True,)
     thread_status = db.Column(db.Enum(ThreadStatus),server_default=ThreadStatus.CHILD.name)
+    read_status = db.Column(db.Enum(ReadStatus),server_default=ReadStatus.FALSE.name)
+
 
 
 

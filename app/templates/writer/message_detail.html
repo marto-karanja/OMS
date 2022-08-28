@@ -1,24 +1,22 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Create Message {% endblock %}
+{% block title %}{{ session['name'] }}'s Inbox {% endblock %}
 {% block head %}
     {{ super() }}
 
        <!-- Custom CSS -->
        <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
        <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
-       <!-- This Page CSS -->
-        <link href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css" rel="stylesheet">
-        <link href="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
        <!-- Custom CSS -->
        <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
-       <link rel="stylesheet" type="text/css" href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css">
-
        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
        <!--[if lt IE 9]>
        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-<![endif]-->
+       <![endif]-->
+       <!-- This Page CSS -->
+       <link href="static/oms/gigs/assets/libs/summernote/dist/summernote-bs4.css" rel="stylesheet">
+       <link href="static/oms/gigs/assets/libs/dropzone/dist/min/dropzone.min.css" rel="stylesheet">
 {% endblock %}
 {% block body %}
 <!-- ============================================================== -->
@@ -47,7 +45,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">Compose New Email</h4>
+                        <h4 class="page-title">{{ session['name'] }}'s Inbox</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -68,12 +66,8 @@
             <div class="container-fluid">
             <!-- ============================================================== -->
 
-            <!---Content ???-->
+            <!---Content starts---->
 
-            <!-- ============================================================== -->
-            <!-- ============================================================== -->
-            <!-- Email App Part -->
-            <!-- ============================================================== -->
             <div class = "row">
                 <!---Display messages-->
                 
@@ -86,6 +80,10 @@
                     {% endfor %}
                 </div>
             </div>
+                
+            <!-- ============================================================== -->
+            <!-- Email App Part -->
+            <!-- ============================================================== -->
             <div class="email-app">
                 <!-- ============================================================== -->
                 <!-- Left Part -->
@@ -93,9 +91,68 @@
                 {% import 'base_templates/writer/message_macros.html' as macros %}
                 {{ macros.render_message_navigation() }}
                 <!-- ============================================================== -->
+                <!-- Right Part  Mail detail -->
+                <!-- ============================================================== -->
+                <div class="right-part mail-details bg-white">
+                    <div class="card-body bg-light">
+                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
+                            {% if message.thread_id %}
+                            <a href="{{ url_for('admin.view_message_detail', message_id = message.thread_id) }}" type="button" class="btn btn-outline-secondary font-18"><i class="mdi mdi-arrow-left"></i></a>
+                            {% endif %}
+                            
+                        </div>
+                        <div class="btn-group mr-2" role="group" aria-label="Button group with nested dropdown">
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop1" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-folder font-18 "></i> </button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop1"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button id="btnGroupDrop2" type="button" class="btn btn-outline-secondary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"> <i class="mdi mdi-label font-18"></i> </button>
+                                <div class="dropdown-menu" aria-labelledby="btnGroupDrop2"> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> <a class="dropdown-item" href="javascript:void(0)">Dropdown link</a> </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body border-bottom">
+                        <h4 class="mb-0">{{ message.subject }}</h4>
+                    </div>
+                    <div class="card-body border-bottom">
+                        <div class="d-flex no-block align-items-center mb-5">
+                            <div class="mr-2"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="45"></div>
+                            <div class="">
+                                <h5 class="mb-0 font-16 font-medium"> {{ message.sent_to.value }}</small></h5><span>{{ message.sent_from.value }}</span>
+                            </div>
+                        </div>
+                        <h4 class="mb-3">Hey Hi,</h4>
+                        <p>{{message.message | safe}}</p>
+                    </div>
+                    <div class="card-body">
+                        <h4><i class="fa fa-paperclip mr-2 mb-2"></i> Attachments <span>(3)</span></h4>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img1.jpg"> </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img2.jpg"> </a>
+                            </div>
+                            <div class="col-md-2">
+                                <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="../../assets/images/big/img3.jpg"> </a>
+                            </div>
+                        </div>
+                        <div class="border mt-3 p-15">
+                            {{ macros.render_reply_message_form(message_form) }}
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!----Threaded messages table-->
+                        <h6 class="card-subtitle">Other messages in this thread</h6>
+                        {{ macros.render_mailbox_threaded_messages(threaded_messages) }}
+
+                    </div>
+                </div>
+                <!-- ============================================================== -->
                 <!-- Right Part  Mail Compose -->
                 <!-- ============================================================== -->
-                <div class="right-part mail-compose bg-white">
+                <div class="right-part mail-compose bg-white" style="display: none;">
                     <div class="p-20 border-bottom">
                         <div class="d-flex align-items-center">
                             <div>
@@ -103,20 +160,21 @@
                                 <span>create new message</span>
                             </div>
                             <div class="ml-auto">
-                                <a class="btn btn-dark" href = "{{url_for('writer.writer_view_inbox')}}">Return to Inbox</a>
+                                <button id="cancel_compose" class="btn btn-dark">Back</button>
                             </div>
                         </div>
                     </div>
                     <!-- Action part -->
                     <!-- Button group part -->
                     <div class="card-body">
-                        {{ macros.render_writer_message_form(message_form) }}
+                        {{ macros.render_writer_message_form(create_message_form)}}
                         <!-- Action part -->
                     </div>
                 </div>
+
             </div>
                 
-            
+                
                 <!----Content ends-->
             
             </div>

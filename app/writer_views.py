@@ -16,6 +16,7 @@ from flask import Markup
 from dateutil.parser import parse
 from werkzeug.security import generate_password_hash
 from sqlalchemy.orm import joinedload
+from sqlalchemy import desc
 from sqlalchemy.orm import load_only
 from flask import send_from_directory
 
@@ -23,10 +24,10 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, CompletedOrders, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department
+from .models import BiddingOrders, CompletedOrders, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department, ThreadStatus, ReadStatus
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm
+from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, ReplyMessageForm, ReplyThreadedMessageForm, WriterOrderReplyMessageForm
 from .management_system import find_time_difference
 
 
@@ -61,13 +62,12 @@ def view_order(order_id):
         if session['user_id'] in bid_writers:
             order.bid_status = True
 
-    #messages = Messages.query.filter(Messages.order == order).all()
+    messages = Messages.query.filter((Messages.thread_status == ThreadStatus.PARENT) & (Messages.order_id == order.id)).all()
 
     file_form = FileForm()
     message_form = MessageForm()
 
-    #return render_template("writer/view_order.html", Status = Status, order= order, file_form = file_form, messages = messages, message_form = message_form)
-    return render_template("writer/view_order.html", Status = Status, order= order, file_form = file_form, message_form = message_form)
+    return render_template("writer/view_order.html", Status = Status, order= order, file_form = file_form, message_form = message_form, messages = messages)
 
 
 
@@ -321,22 +321,20 @@ def send_message(order_id):
 
     message_form = MessageForm()
     if message_form.validate_on_submit():
+        
 
         message =  Messages(
             sender_id = session['user_id'],
-            #recipient_id = order.writer_id,
             subject = message_form.subject.data,
-            order_id = order_id
-           )
-        thread = ThreadedMessages(
+            order_id = order_id,
             message = message_form.message.data,
             sent_to = message_form.to_department.data,
             sent_from = Department.WRITER.value,
-            parent_thread = message
+            thread_status = ThreadStatus.PARENT
         )
         
         try:
-            db.session.add(thread)
+            db.session.add(message)
             db.session.commit()
         except Exception as e:
             db.session.rollback()
@@ -355,26 +353,46 @@ def send_message(order_id):
 def download_file(name):
     return send_from_directory(current_app.config["UPLOAD_FOLDER"], name)
 
-@writer.route('/view_inbox')
+@writer.route('/writer_view_inbox')
 @login_required
-def view_inbox():
+def writer_view_inbox():
     #user = User.query.filter(User.id == session['user_id']).options(joinedload("messages_received")).all()
     messages = current_user.messages_received.order_by(Messages.id.desc()).all()
-    return render_template("writer/messages.html", messages = messages)
+    message_form = MessageForm()
+    return render_template("writer/messages.html", messages = messages, message_form = message_form )
 
-@writer.route('/view_outbox')
+
+
+#---------------------------------------------------------------------
+@writer.route('/writer_view_unread')
 @login_required
-def view_outbox():
-    """messages = Messages.query.filter(Messages.sender_id == session['user_id']).all()
-    return render_template("writer/messages.html", messages = messages)
-    """
-    #user = User.query.filter(User.id == session['user_id']).options(joinedload("messages_sent")).all()
-    page = request.args.get('page', 1, type=int)
-    #user = User.query.filter(User.id == session['user_id'])
-    messages = current_user.messages_sent.order_by(Messages.id.desc()).paginate(page, 10, False)
+def writer_view_unread():
 
-    #messages = current_user.messages_sent.order_by(Messages.timestamp.desc()).all()
-    return render_template("writer/outbox.html", messages = messages.items)
+    page = request.args.get('page', 1, type=int)
+
+    messages = Messages.query.filter((Messages.sender_id == session['user_id']) & (Messages.thread_status == ThreadStatus.PARENT) & (Messages.read_status == ReadStatus.FALSE)).order_by(Messages.id.desc()).paginate(page, 10, False)
+
+    message_form = MessageForm()
+    return render_template("writer/messages.html", messages = messages.items, message_form = message_form)
+
+
+
+####--------------------------------------------------------------------------------- 
+
+@writer.route('/writer_view_outbox')
+@login_required
+def writer_view_outbox():
+
+    page = request.args.get('page', 1, type=int)
+
+    messages = Messages.query.filter((Messages.sender_id == session['user_id']) & (Messages.thread_status == ThreadStatus.PARENT)).order_by(Messages.id.desc()).paginate(page, 10, False)
+
+    message_form = MessageForm()
+    return render_template("writer/outbox.html", messages = messages.items, message_form = message_form)
+
+
+
+###--------------------------------------------------------------------------------------
 
 
 @writer.route('/unpaid_orders')
@@ -382,3 +400,165 @@ def view_outbox():
 def unpaid_orders():
     orders = Orders.query.filter((Orders.status == Status.completed) & (Orders.writer_id == session['user_id'])).all()
     return render_template("writer/unpaid_orders.html", orders = orders)
+
+
+
+#--------------------------------------------------------------------
+
+
+#-view message detail
+####-------------------------------------------------------------------------
+@writer.route('/writer_view_message?<message_id>', methods = ['GET', 'POST'])
+@login_required
+def view_message_detail(message_id):
+    """Renders view for a single message"""
+    # fetch customer by ID/ primary key
+    message = Messages.query.options(joinedload(Messages.order)).get(message_id)
+    order = message.order
+
+
+    order.time_remaining = find_time_difference(order.deadline)
+
+    file_form = FileForm()
+    message_form = WriterOrderReplyMessageForm(order_id = order.id, thread_id = message.id)
+    
+    messages = Messages.query.filter(Messages.thread_id == message_id).order_by(desc(Messages.timestamp)).all()
+
+    return render_template("writer/order_message_single.html", Status = Status, order= order, file_form = file_form, message_form = message_form, detailed_message = message, messages = messages)
+
+
+
+#-reply to order message
+####-------------------------------------------------------------------------
+@writer.route('/writer_reply_order_message', methods = ['POST'])
+@login_required
+def reply_order_message():
+    message_form = WriterOrderReplyMessageForm()
+    if message_form.validate_on_submit():
+        parent_message = Messages.query.get(message_form.thread_id.data)
+        
+        
+
+        
+        message =  Messages(
+            sender_id = session['user_id'],
+            #recipient_id = order.writer_id,
+            thread_id = message_form.thread_id.data,
+            subject = parent_message.subject,
+            order_id = message_form.order_id.data,
+            message = message_form.message.data,
+            sent_to = parent_message.sent_to,
+            sent_from = parent_message.sent_from,
+            thread_status = ThreadStatus.CHILD
+        )
+        
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            flash("Message was sent successully")
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+    return redirect(url_for("writer.view_order_messages", order_id = message_form.order_id.data, _anchor='files'))
+
+#-View order messages
+####-------------------------------------------------------------------------
+@writer.route('/writer_view_order_messages?<order_id>', methods = ['GET','POST'])
+@login_required
+def view_order_messages(order_id):
+    order = Orders.query.options(joinedload("files")).get(order_id)
+
+    if order.status == Status.bid_status:
+        bid_order = BiddingOrders.query.filter(BiddingOrders.order == order).first()
+
+        order.bid_status = False
+        bid_writers = [ g.writer_id for g in bid_order.bids]
+        print(bid_writers)
+        if session['user_id'] in bid_writers:
+            order.bid_status = True
+
+    messages = Messages.query.filter((Messages.thread_status == ThreadStatus.PARENT) and (Messages.order_id == order_id)).all()
+
+    file_form = FileForm()
+    message_form = MessageForm()
+
+    return render_template("writer/view_order_messages.html", Status = Status, order= order, file_form = file_form, message_form = message_form, messages = messages)
+
+#-Return compose message form
+####-------------------------------------------------------------------------
+@writer.route('/writer_compose_message', methods = ['GET','POST'])
+@login_required
+def compose_message():
+    """Create new message"""
+    message_form = MessageForm()
+    return render_template("writer/email_compose.html", message_form = message_form)
+
+
+#-Create order messages
+####-------------------------------------------------------------------------
+@writer.route('/writer_send_message', methods = ['GET','POST'])
+@login_required
+def compose_writer_message():
+    message_form = MessageForm()
+    if message_form.validate_on_submit():
+        
+        message =  Messages(
+            sender_id = session['user_id'],
+            subject = message_form.subject.data,
+            sent_to = message_form.to_department.data,
+            message = message_form.message.data,
+            sent_from = Department.WRITER,
+            thread_status = ThreadStatus.PARENT
+        )
+        
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            
+            flash("Message was sent successully")
+            return redirect(url_for('writer.compose_message'))
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+    return render_template("writer/email_compose.html", message_form = message_form )
+
+
+
+#-View message details
+####-------------------------------------------------------------------------
+@writer.route('/inbox_message_detail?<message_id>', methods = ['GET','POST'])
+@login_required
+def inbox_message_detail(message_id):
+    page = request.args.get('page', 1, type=int)
+
+    threaded_messages = Messages.query.filter((Messages.thread_id == message_id)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
+    message = Messages.query.get(message_id)
+
+    message_form = ReplyThreadedMessageForm()
+    create_message_form = MessageForm()
+
+    return render_template("writer/message_detail.html", message = message, threaded_messages = threaded_messages.items, message_form = message_form, create_message_form = create_message_form)
+
+
+###--------------------------------------------------------------------------------------
+
+
+@writer.route('/user_profile')
+@login_required
+def user_profile():
+    
+    return render_template("writer/user-profile.html")

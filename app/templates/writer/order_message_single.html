@@ -93,22 +93,26 @@
                                 {% import 'base_templates/macros.html' as macros %}
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#order" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">Order Instructions</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#order" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">Order Instructions</span></a> </li>
                                     <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#files" role="tab"><span class="hidden-sm-up"><i class="ti-briefcase"></i></span> <span class="hidden-xs-down">Order Files</span></a> </li>
-                                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#messages" role="tab"><span class="hidden-sm-up"><i class="ti-email"></i></span> <span class="hidden-xs-down">Messages</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#messages" role="tab"><span class="hidden-sm-up"><i class="ti-email"></i></span> <span class="hidden-xs-down">Messages</span></a> </li>
                                 </ul>
                                 <!-- Tab panes -->
                                 <div class="tab-content tabcontent-border">
-                                    <div class="tab-pane active" id="order" role="tabpanel">
+                                    <div class="tab-pane  p-20" id="order" role="tabpanel">
                                         {{ macros.render_order(order) }}
                                     </div>
                                     <div class="tab-pane  p-20" id="files" role="tabpanel">
                                         {{ macros.render_writers_files(file_form, order) }}
                                     </div>
-                                    <div class="tab-pane p-20" id="messages" role="tabpanel">
+                                    <div class="tab-pane active" id="messages" role="tabpanel">
                                         {% import 'base_templates/writer/message_macros.html' as message_macros %}
-                                        {{ message_macros.render_writer_messages(messages) }}
-                                        {{ macros.render_message_form(message_form, order) }}
+                                        {{ message_macros.render_single_message(detailed_message, order.id) }}
+                                        <h4 class="card-subtitle">Reply to this thread</h4>
+                                        {{ message_macros.render_reply_message_form(message_form, order) }}
+                                        <br>
+                                        <h6 class="card-subtitle">Other messages in this thread</h6>
+                                        {{ message_macros.render_threaded_messages(messages) }}
                                         
                                     </div>
                                     

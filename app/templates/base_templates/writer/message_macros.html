@@ -1,0 +1,292 @@
+{% macro render_writer_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_to.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('writer.view_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No messages yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+{% macro render_reply_message_form(message_form, order) %}
+<form  method="post" action ="{{url_for('writer.reply_order_message')}}">
+    {{ message_form.hidden_tag() }}
+
+    {{ message_form.message(class="summernote") }}
+        
+<button type="submit" class="btn btn-rounded btn-primary">Reply</button>
+</form>
+{% endmacro %}
+
+
+{% macro render_single_message(detailed_message, order_id) %}
+<!----------------------------------------------------->
+<div class="card-body bg-light">
+    <a href="{{url_for('writer.view_order_messages', order_id = order_id) }}" class="btn btn-outline-secondary font-18 mr-2"><i class="mdi mdi-arrow-left"></i></a>
+</div>
+<!----------------------------------------------------->
+<div class="card-body border-bottom">
+    <h4 class="mb-0">{{detailed_message.subject}}</h4>
+</div>
+<!----------------------------------------------------->
+<div class="card-body border-bottom">
+    <div class="d-flex no-block align-items-center mb-5">
+        <div class="mr-2"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="45"></div>
+        <div class="">
+            <h5 class="mb-0 font-16 font-medium">{{detailed_message.sent_from.value}}<small> ( hgover@gmail.com )</small></h5><span>to {{detailed_message.sent_to.value}}</span>
+        </div>
+    </div>
+    {{detailed_message.message|safe}}
+</div>
+<div class="card-body">
+    <h4><i class="fa fa-paperclip mr-2 mb-2"></i> Attachments <span>(3)</span></h4>
+    <div class="row">
+        <div class="col-md-2">
+            <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="static/oms/gigs/assets/images/big/img1.jpg"> </a>
+        </div>
+        <div class="col-md-2">
+            <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="static/oms/gigs/assets/images/big/img2.jpg"> </a>
+        </div>
+        <div class="col-md-2">
+            <a href="javascript:void(0)"> <img class="img-thumbnail img-responsive" alt="attachment" src="static/oms/gigs/assets/images/big/img3.jpg"> </a>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_threaded_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_from.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('writer.view_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No other messages in this thread yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+{% macro render_messages_list(messages) %}
+{% if messages|length > 0 %}
+
+
+    <table class="table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_to.value }}</h6>
+                </td>
+
+                <!-- Message -->
+                <td> <a href="{{url_for('writer.inbox_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Order Id -->
+                <td class="clip">
+                    {% if message.order_id %}
+                        <h6 class="mb-0"><a href="{{ url_for('writer.view_order_messages', order_id = message.order_id) }}"><i class="mdi mdi-folder"></i> # {{ message.order_id }}</a></h6>
+                    {% endif %}
+                </td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp.strftime("%a %d %b-%H:%M %p")}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No messages yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+{% macro render_writer_message_form(message_form) %}
+<form  method="post" action ="{{url_for('writer.compose_writer_message')}}">
+    {{ message_form.csrf_token }}
+    <div class="form-group">
+        To: {{ message_form.to_department(class="form-control") }}
+    </div>
+    <div class="form-group">
+        {{ message_form.subject(class="form-control", placeholder = "Subject") }}
+    </div>
+    <div>
+        {{ message_form.message(class="summernote") }}
+    </div>
+
+        
+    <h4>Attachment</h4>
+    <div class="dropzone" id="dzid">
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+    </div>
+        
+
+<button type="submit" class="btn btn-success mt-3"><i class="far fa-envelope"></i> Send</button>
+<a href="{{url_for('writer.writer_view_outbox')}}" type="submit" class="btn btn-dark mt-3">Discard</a>
+</form>
+{% endmacro %}
+
+{% macro render_message_navigation() %}
+<div class="left-part">
+    <a class="ti-menu ti-close btn btn-success show-left-part d-block d-md-none" href="javascript:void(0)"></a>
+    <div class="scrollable" style="height:100%;">
+        <div class="p-15">
+            <a id="compose_mail" class="waves-effect waves-light btn btn-danger d-block" href="javascript: void(0)">Compose New</a>
+        </div>
+        <div class="divider"></div>
+        <ul class="list-group">
+            <li>
+                <small class="p-15 grey-text text-lighten-1 db">Folders</small>
+            </li>
+            <li class="list-group-item">
+                <a href="{{url_for('writer.writer_view_unread')}}" class="active list-group-item-action"><i class="mdi mdi-email"></i> Unread Messages <span class="label label-success float-right">6</span></a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{url_for('writer.writer_view_inbox')}}" class="active list-group-item-action"><i class="mdi mdi-inbox"></i> Inbox <span class="label label-success float-right">6</span></a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{url_for('writer.writer_view_outbox')}}" class="list-group-item-action"> <i class="mdi mdi-email-open"></i> Sent Mail </a>
+            </li>
+            <li class="list-group-item">
+                <hr>
+            </li>
+            <li class="list-group-item">
+                <a href="javascript:void(0)" class="list-group-item-action"> <i class="mdi mdi-content-paste"></i> Order Messages </a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{url_for('admin.view_trash')}}" class="list-group-item-action"> <i class="mdi mdi-bank"></i> Billing department </a>
+            </li>
+            <li class="list-group-item">
+                <a href="{{url_for('admin.view_trash')}}" class="list-group-item-action"> <i class="mdi mdi-content-cut"></i> Editors department </a>
+            </li>
+            <li class="list-group-item">
+                <hr>
+            </li>
+            <li>
+                <small class="p-15 grey-text text-lighten-1 db">Labels</small>
+            </li>
+            <li class="list-group-item">
+                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-danger mdi mdi-checkbox-blank-circle"></i> Work </a>
+            </li>
+            <li class="list-group-item">
+                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-cyan mdi mdi-checkbox-blank-circle"></i> Business </a>
+            </li>
+            <li class="list-group-item">
+                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-warning mdi mdi-checkbox-blank-circle"></i> Family </a>
+            </li>
+            <li class="list-group-item">
+                <a href="javascript:void(0)" class="list-group-item-action"><i class="text-info mdi mdi-checkbox-blank-circle"></i> Friends </a>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_mailbox_threaded_messages(messages) %}
+{% if messages|length > 0 %}
+
+<div class="mail-list bg-white">
+<div class="table-responsive">
+    <table class="table email-table no-wrap table-hover v-middle">
+        <tbody>
+            {% for message in messages %}
+            <!-- row -->
+            <tr class="">
+                <!-- User -->
+                <td class="user-image"><img src="static/oms/gigs/assets/images/users/1.jpg" alt="user" class="rounded-circle" width="30"></td>
+                <td class="user-name">
+                    <h6 class="mb-0">{{ message.sent_from.value }}</h6>
+                </td>
+                <!-- Message -->
+                <td class="max-texts"> <a class="link" href="{{url_for('writer.inbox_message_detail', message_id = message.id)}}"><span class="label label-info mr-2">Work</span>{{ message.subject }}</a></td>
+                <!-- Attachment -->
+                <td class="clip"><i class="fa fa-paperclip"></i></td>
+                <!-- Time -->
+                <td class="time"> {{ message.timestamp}} </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+</div>
+</div>
+{% else %}
+            <div class="alert alert-primary"> <i class="ti-notepad"></i> No other messages in this thread yet.
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+            </div>
+            {% endif %}
+{% endmacro %}
+
+{% macro render_writer_reply_message_form(message_form) %}
+<form  method="post" action ="{{url_for('writer.compose_writer_message')}}">
+    {{ message_form.csrf_token }}
+    <div>
+        {{ message_form.message(class="summernote") }}
+    </div>
+
+        
+    <h4>Attachment</h4>
+    <div class="dropzone" id="dzid">
+        <div class="fallback">
+            <input name="file" type="file" multiple />
+        </div>
+    </div>
+        
+
+<button type="submit" class="btn btn-success mt-3"><i class="far fa-envelope"></i> Send</button>
+<a href="{{url_for('writer.writer_view_outbox')}}" type="submit" class="btn btn-dark mt-3">Discard</a>
+</form>
+{% endmacro %}
