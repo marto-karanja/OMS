@@ -1,0 +1,42 @@
+{% macro render_update_profile_form(form) %}
+
+<form class="form-horizontal form-material" method="post" action ="{{url_for('writer.update_writer_profile')}}">
+    {{ form.csrf_token }}
+    <div class="form-group">
+        <label class="col-md-12">{{ form.phone_number.label }}</label>
+        <div class="col-md-12">
+            {{ form.phone_number(placeholder="254700415415", class="form-control form-control-line")}}
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="example-email" class="col-md-12">{{ form.about_me.label }}</label>
+        <div class="col-md-12">
+            {{ form.about_me(class="form-control form-control-line summernote")}}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-md-12">{{ form.education_level.label }}</label>
+        <div class="col-md-12">
+            {{ form.education_level(class="form-control form-control-line")}}
+        </div>
+    </div>
+    <div class= "row" style = "padding:10px">
+        <div class="col-md-12">
+            <h6>Attach your academic certificates</h6>
+            <div class="dropzone" id="dzid">
+                <div class="fallback">
+                    {{form.certificate_path()}}
+                </div>
+            </div>
+        </div>
+        <!---end row-->
+    </div>
+
+    <br>
+    <div class="form-group">
+        <div class="col-sm-12">
+            <button class="btn btn-success">Update Profile</button>
+        </div>
+    </div>
+</form>
+{% endmacro %}

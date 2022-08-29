@@ -7,8 +7,8 @@ from click import password_option
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SubmitField,FloatField, SelectField, EmailField, PasswordField, BooleanField, DecimalField, DateField
 from wtforms.validators import InputRequired, Email, EqualTo, ValidationError, Length
-from .models import Department, TransactionMethod, User, EnglishCountry, Person, Status, Department
-from wtforms import MultipleFileField
+from .models import Department, TransactionMethod, User, EnglishCountry, Person, Status, Department, EducationLevel
+from wtforms import MultipleFileField, FileField
 
 
 
@@ -154,3 +154,10 @@ def create_dynamic_checkbox(list_a):
         setattr(Prefs, ele, BooleanField(ele))
 
     return Prefs
+
+class UserEditForm(FlaskForm):
+    profile_img = FileField('Update Profile Picture')
+    phone_number = StringField('Phone Number')
+    about_me = TextAreaField("About me")
+    education_level = SelectField('Education Level', choices = [(EducationLevel.HIGH_SCHOOL.name, EducationLevel.HIGH_SCHOOL.value),(EducationLevel.CERTIFICATE.name, EducationLevel.CERTIFICATE.value),(EducationLevel.DIPLOMA.name, EducationLevel.DIPLOMA.value) , (EducationLevel.UNDERGRADUATE.name, EducationLevel.UNDERGRADUATE.value)])
+    certificate_path = FileField('Profile picture Upload')

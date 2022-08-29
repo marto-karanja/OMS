@@ -393,7 +393,11 @@
                         
 
                         
-                        <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark" href="{{ url_for('writer.user_profile')}}" aria-expanded="false"><i class="mdi mdi-account-multiple"></i><span class="hide-menu">My Profile</span></a>
+                        <li class="sidebar-item"> <a class="sidebar-link has-arrow waves-effect waves-dark" href="{{ url_for('writer.user_profile')}}" aria-expanded="false"><i class="mdi mdi-account-multiple"></i><span class="hide-menu">My Profile</span></a>
+                            <ul aria-expanded="false" class="collapse  first-level">
+                                <li class="sidebar-item"><a href="{{url_for('writer.edit_user_profile')}}" class="sidebar-link"><i class="mdi mdi-account-plus"></i><span class="hide-menu"> Edit Profile </span></a></li>
+                                <li class="sidebar-item"><a href="{{url_for('writer.user_profile')}}" class="sidebar-link"><i class="mdi mdi-account-circle"></i><span class="hide-menu"> View Profile  </span></a></li>
+                            </ul>
                         </li>
                         
                         <li class="sidebar-item"> <a class="sidebar-link waves-effect waves-dark sidebar-link" href="/logout" aria-expanded="false"><i class="mdi mdi-directions"></i><span class="hide-menu">Log Out</span></a></li>

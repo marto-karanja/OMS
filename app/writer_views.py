@@ -24,10 +24,10 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, CompletedOrders, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department, ThreadStatus, ReadStatus
+from .models import BiddingOrders, CompletedOrders, CurrentOrders, EducationLevel, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department, ThreadStatus, ReadStatus
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, ReplyMessageForm, ReplyThreadedMessageForm, WriterOrderReplyMessageForm
+from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, ReplyMessageForm, ReplyThreadedMessageForm, WriterOrderReplyMessageForm, UserEditForm
 from .management_system import find_time_difference
 
 
@@ -356,10 +356,13 @@ def download_file(name):
 @writer.route('/writer_view_inbox')
 @login_required
 def writer_view_inbox():
-    #user = User.query.filter(User.id == session['user_id']).options(joinedload("messages_received")).all()
-    messages = current_user.messages_received.order_by(Messages.id.desc()).all()
+    page = request.args.get('page', 1, type=int)
+
+    messages = Messages.query.filter((Messages.recipient_id == session['user_id']) & (Messages.thread_status == ThreadStatus.PARENT)).order_by(Messages.id.desc()).paginate(page, 10, False)
+    
     message_form = MessageForm()
-    return render_template("writer/messages.html", messages = messages, message_form = message_form )
+
+    return render_template("writer/messages.html", messages = messages.items, message_form = message_form )
 
 
 
@@ -370,7 +373,7 @@ def writer_view_unread():
 
     page = request.args.get('page', 1, type=int)
 
-    messages = Messages.query.filter((Messages.sender_id == session['user_id']) & (Messages.thread_status == ThreadStatus.PARENT) & (Messages.read_status == ReadStatus.FALSE)).order_by(Messages.id.desc()).paginate(page, 10, False)
+    messages = Messages.query.filter((Messages.recipient_id == session['user_id']) & (Messages.thread_status == ThreadStatus.PARENT) & (Messages.read_status == ReadStatus.FALSE)).order_by(Messages.id.desc()).paginate(page, 10, False)
 
     message_form = MessageForm()
     return render_template("writer/messages.html", messages = messages.items, message_form = message_form)
@@ -548,6 +551,11 @@ def inbox_message_detail(message_id):
     threaded_messages = Messages.query.filter((Messages.thread_id == message_id)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
     message = Messages.query.get(message_id)
 
+    # update read field
+    message.read_status = ReadStatus.TRUE
+    db.session.add(message)
+    db.session.commit()
+
     message_form = ReplyThreadedMessageForm()
     create_message_form = MessageForm()
 
@@ -560,5 +568,65 @@ def inbox_message_detail(message_id):
 @writer.route('/user_profile')
 @login_required
 def user_profile():
+    user_profile = User.query.get(session["user_id"])
+
+    form = UserEditForm()
+    form.phone_number.data = user_profile.number
+    form.about_me.data = user_profile.about_me or "Enter a short description about yourself"
+    form.education_level.data = user_profile.education_level or EducationLevel.UNDERGRADUATE.name
     
-    return render_template("writer/user-profile.html")
+    return render_template("writer/user-profile.html", user_profile = user_profile, form = form)
+
+
+###--------------------------------------------------------------------------------------
+
+
+@writer.route('/update_writer_profile', methods = ['GET','POST'])
+@login_required
+def update_writer_profile():
+    user_profile = User.query.get(session["user_id"])
+    form = UserEditForm()
+    if form.validate_on_submit():
+        user_profile.number = form.phone_number.data
+        user_profile.about_me = form.about_me.data
+        user_profile.education_level = form.education_level.data
+        # save session
+        try:
+            print("hapa")
+            db.session.add(user_profile)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Profile was not updated successfully')
+            print(e)
+        else:
+            # on successful saving
+            
+            flash("Profile was updated successfully")
+            
+    else:
+        flash('Error: Profile was not updated successfully')
+        for fieldName, errorMessages in form.errors.items():
+            for err in errorMessages:
+                print(err)
+
+    
+    # update database profile
+    # save profile picture
+    # save certificate path
+    return redirect(url_for("writer.user_profile"))
+
+
+#----------------------------------------------------------------------------
+@writer.route('/edit_user_profile')
+@login_required
+def edit_user_profile():
+    user_profile = User.query.get(session["user_id"])
+
+    form = UserEditForm()
+    form.phone_number.data = user_profile.number
+    form.about_me.data = user_profile.about_me or "Enter a short description about yourself"
+    form.education_level.data = user_profile.education_level or EducationLevel.UNDERGRADUATE.name
+    
+    return render_template("writer/user-edit-profile.html", user_profile = user_profile, form = form)

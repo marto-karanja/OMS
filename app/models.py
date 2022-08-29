@@ -46,6 +46,12 @@ class Status(enum.Enum):
     disputed = "Disputed"
     cancelled = "Cancelled"
 
+class EducationLevel(enum.Enum):
+    HIGH_SCHOOL = "High School"
+    UNDERGRADUATE = "Undergraduate"
+    DIPLOMA = "Diploma"
+    CERTIFICATE = "Certificate" 
+
 
 class Order_type(enum.Enum):
     CUSTOMER = "Customer File"
@@ -97,6 +103,13 @@ class User(UserMixin, db.Model):
                                         backref='receiver', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
     payments = db.relationship("Payments", back_populates="writers", lazy='joined')
+    ####
+    profile_image_path = db.Column(db.String(1000))
+    about_me = db.Column(db.Text())
+    ranking = db.Column(db.String(100))
+    education_level = db.Column(db.Enum(EducationLevel))
+    certificate_path = db.Column(db.String(1000))
+    mysql_auto_increment='1001'
 
     # ...
 
