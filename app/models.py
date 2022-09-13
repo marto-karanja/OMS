@@ -103,6 +103,7 @@ class User(UserMixin, db.Model):
                                         backref='receiver', lazy='dynamic')
     last_message_read_time = db.Column(db.DateTime)
     payments = db.relationship("Payments", back_populates="writers", lazy='joined')
+    fines = db.relationship("Fines", back_populates="writers", lazy='joined')
     ####
     profile_image_path = db.Column(db.String(1000))
     about_me = db.Column(db.Text())
@@ -162,6 +163,7 @@ class Orders(db.Model):
     seo = db.Column(db.String(1000))
     business_description = db.Column(db.Text())
     comments = db.Column(db.String(1000))
+    rating = db.Column(db.Integer, server_default = "5")
     status = db.Column(db.Enum(Status), nullable = False,server_default=Status.unassigned.name)
     price = db.Column(db.Numeric(65,2))
     deadline = db.Column(db.DateTime())
@@ -210,9 +212,12 @@ class Writers(db.Model):
     order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
     order = db.relationship("Orders", foreign_keys='Writers.order_id', backref=db.backref('order', lazy='dynamic'))
     job_status = db.Column(db.Enum(Status))
-    rating = db.Column(db.String(1000))
+    rating = db.Column(db.Integer, server_default = "5")
+    amount_paid = db.Column(db.Numeric(65,2), server_default = "0")
+    amount_fined = db.Column(db.Numeric(65,2), server_default = "0")
     time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     last_edited = db.Column(db.TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), server_onupdate=FetchedValue())
+
 
 class BiddingOrders(db.Model):
     id = db.Column(db.Integer, primary_key = True)
@@ -284,6 +289,31 @@ class Payments(db.Model):
     payment_date = db.Column(db.TIMESTAMP)
     amount_paid = db.Column(db.Numeric(65,2))
     description = db.Column(db.String(1000))
+
+class Fines(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    writer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    writers = db.relationship("User", back_populates = "fines", lazy="joined")
+    orders = db.relationship("FineOrders", back_populates="fine", lazy="joined")
+    fine_date = db.Column(db.TIMESTAMP)
+    amount_fined = db.Column(db.Numeric(65,2))
+    description = db.Column(db.String(1000))
+
+class FineOrders(db.Model):
+    id = db.Column(db.Integer, primary_key = True)
+    order_id = db.Column(db.Integer, db.ForeignKey('orders.id'))
+    order = db.relationship("Orders", foreign_keys='FineOrders.order_id', backref=db.backref('fine_order', lazy='dynamic'))
+    description = db.Column(db.Text())
+    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    editor = db.relationship("User", foreign_keys='PaidOrders.editor_id', backref=db.backref('paid_editor', lazy='dynamic'))
+    editor_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    editor = db.relationship("User", foreign_keys='FineOrders.editor_id', backref=db.backref('fine_editor', lazy='dynamic'))
+    time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
+    last_edited = db.Column(db.TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), server_onupdate=FetchedValue())
+    fine_id = db.Column(db.Integer, db.ForeignKey(Fines.id))
+    fine = db.relationship("Fines", back_populates="orders")
+
+
 
 
 class PaidOrders(db.Model):

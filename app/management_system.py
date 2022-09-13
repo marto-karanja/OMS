@@ -13,7 +13,7 @@ from flask import url_for
 from flask import session
 from flask_login import login_required, current_user
 from sqlalchemy.orm import joinedload, contains_eager
-from sqlalchemy import desc
+from sqlalchemy import desc, asc
 from flask import current_app
 from flask import Markup
 from dateutil.parser import parse
@@ -25,9 +25,9 @@ from flask import send_from_directory
 from .models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, Writers, Payments, ThreadStatus
 from . import db
 from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, create_dynamic_checkbox, ReplyMessageForm
+from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, ReassignForm, create_dynamic_checkbox, ReplyMessageForm, ReassignForm, CompleteForm, RevisionForm
 from .mpesa import send_money_request
-from .scripts.scripts import set_bidding_status, set_order_progress, set_order_unassigned, Actions, Operations, set_orders_as_paid
+from .scripts.scripts import set_bidding_status, set_order_progress, set_order_unassigned, Actions, Operations, set_orders_as_paid, set_order_rating
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -53,7 +53,7 @@ def home():
 @admin.route('/dashboard', methods=["GET", "POST"])
 @login_required
 def dashboard():
-    orders = Orders.query.all()
+    orders = Orders.query.order_by(asc(Orders.deadline)).all()
 
     for order in orders:        
         order.difference = find_time_difference(order.deadline)
@@ -67,7 +67,7 @@ def dashboard():
 @admin.route('/all_orders', methods=["GET", "POST"])
 @login_required
 def all_orders():
-    orders = Orders.query.all()
+    orders = Orders.query.order_by(asc(Orders.deadline)).all()
 
     for order in orders:        
         order.difference = find_time_difference(order.deadline)
@@ -188,7 +188,7 @@ def find_time_difference(deadline):
     current_time = datetime.datetime.now()
     try:
         difference = deadline - current_time
-        time_difference = ("{} days {} Hours {} minutes".format(difference.days, difference.seconds//3600, ((difference.seconds//60) % 60)))
+        time_difference = ("{} days {} Hrs {} Min".format(difference.days, difference.seconds//3600, ((difference.seconds//60) % 60)))
     except:
         time_difference = "null"
     return time_difference
@@ -242,6 +242,157 @@ def process_order(variable):
             print(fieldName,err)
     """
     return redirect(url_for('admin.edit_order', order_id= order.id))
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/set_order_revision?<order_id>', methods = ["POST", "GET"])
+def set_order_revision(order_id):
+    return prepare_order_views(order_id, template_string = "admin/editor/edit_revision_order.html")
+
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/reassign_current_order?<order_id>', methods = ["POST", "GET"])
+def reassign_current_order(order_id):
+    order = Orders.query.get(order_id)
+    form = ReassignForm()
+    if form.validate_on_submit():
+        # check if fine has been applied
+        if form.fine.data:
+            fine = form.fine.data
+            message = f"You have been reassigned from this order. Kindly stop working on it. You have also been fined KES {fine}/ which will show in your payment profile."
+        else:
+            fine = 0
+            message =  f"You have been reassigned from this order. Kindly stop working on it immediately."
+        
+            # update
+            # Use message templates 
+
+        order_payment_amount = form.payment.data
+        writer_id = order.writer_id
+        if order_payment_amount > 0:
+            Actions["paid"](order, "paid", writer_id, order.writer.name, amount = order_payment_amount)
+        if fine > 0:
+            Actions["fine"](order, "reassigned", writer_id, order.writer.name, amount = order_payment_amount)
+
+        Actions["reassigned"](order, "reassigned", writer_id, order.writer.name)
+
+
+
+
+
+
+
+        message =  Messages(
+            sender_id = session['user_id'],
+            recipient_id = writer_id,
+            subject = "Order Reassigned",
+            order_id = order_id,
+            message = message,
+            sent_to = Department.WRITER.value,
+            sent_from = Department.EDITOR.value,
+            thread_status = ThreadStatus.PARENT
+        )
+            # update payments table
+            # update fines table
+            #set order on reassign
+
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Revision Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            
+            flash("Reassign Message was sent to writer successully")
+            
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+
+    return redirect(url_for("admin.set_order_revision", order_id = order_id))
+
+
+
+
+
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/set_order_finished?<order_id>', methods = ["POST", "GET"])
+def set_order_finished(order_id):
+    order = Orders.query.get(order_id)
+    Actions["finished"](order, "finished", order.writer_id, order.writer.name)
+    return redirect(url_for("admin.edit_order", order_id = order_id))
+
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/set_order_reassigned?<order_id>', methods = ["POST", "GET"])
+def set_order_reassigned(order_id):
+    order = Orders.query.get(order_id)
+    Actions["reassigned"](order, "reassigned", order.writer_id, order.writer.name)
+    return redirect(url_for("admin.edit_order", order_id = order_id))
+
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/finish_current_order?<order_id>', methods = ["POST", "GET"])
+def finish_current_order(order_id):
+    order = Orders.query.get(order_id)
+    form = CompleteForm()
+    if form.validate_on_submit():
+        payment = form.payment.data
+        rating = form.rating.data
+
+        Actions["finished"](order, "finished", order.writer_id, order.writer.name, amount = payment)
+        set_order_rating(writer_id = order.writer_id, order_id = order_id, rating = rating)
+
+    return redirect(url_for("admin.edit_order", order_id = order_id))
+
+###----------------------------------------------------------------------------------
+
+@admin.route('/process_order_revision?<order_id>', methods = ["POST", "GET"])
+def process_revision_order(order_id):
+    order = Orders.query.get(order_id)
+    form = RevisionForm()
+    if form.validate_on_submit():
+        message =  Messages(
+            sender_id = session['user_id'],
+            recipient_id = order.writer_id,
+            subject = form.subject.data,
+            order_id = order_id,
+            message = form.message.data,
+            sent_to = Department.WRITER.value,
+            sent_from = Department.EDITOR.value,
+            thread_status = ThreadStatus.PARENT
+        )
+
+        try:
+            db.session.add(message)
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            db.session.flush()
+            flash('Error: Revision Message was not sent')
+            print(e)
+        else:
+            # on successful saving
+            
+            flash("Message was sent successully")
+            Actions["revision"](order, "revision", order.writer_id, order.writer.name)
+    else:
+        print("Form not validated")
+        flash("Form was not validated successfully")
+
+    return redirect(url_for("admin.edit_order", order_id = order_id))
+        
+        
+
 
 
 ####------------------------------------------------------------------
@@ -313,8 +464,14 @@ def prepare_order_views(order_id, template_string = None):
 
     file_form = FileForm()
     message_form = AdminMessageForm()
+    reassign_form = ReassignForm()
+    complete_form = CompleteForm()
+    revision_form = RevisionForm()
 
-    return render_template(template_string, order= order, assign_form = form, messages =  messages, file_form = file_form, message_form = message_form)
+    if template_string == "admin/editor/edit_revision_order.html":
+        return render_template(template_string, order= order, assign_form = form, messages =  messages, file_form = file_form, Status = Status, reassign_form = reassign_form, complete_form = complete_form, revision_form = revision_form)
+    else:
+        return render_template(template_string, order= order, assign_form = form, messages =  messages, file_form = file_form, message_form = message_form, Status = Status, reassign_form = reassign_form, complete_form = complete_form)
 
 
 
@@ -324,7 +481,7 @@ def prepare_order_views(order_id, template_string = None):
 @admin.route('/view_unpaid_orders', methods = ["GET", "POST"])
 @login_required
 def unpaid_orders():
-    orders = Orders.query.filter(Orders.status == Status.completed).all()
+    orders = Orders.query.filter((Orders.status == Status.completed) | (Orders.status == Status.finished)).all()
 
     # create checkboxes
     input_list = [str(order.id) for order in orders ]  # generate it as needed
@@ -414,7 +571,7 @@ def unpaid_writers():
         .filter(User.id == Orders.writer_id)\
         .all()"""
 
-    writers = User.query.join(Orders,  User.orders ).options(contains_eager(User.orders)).filter((Orders.status == Status.completed) & (User.user_type == AccountType.WRITER)).all()
+    writers = User.query.join(Orders,  User.orders ).options(contains_eager(User.orders)).filter((Orders.status == Status.completed) | (Orders.status == Status.finished) & (User.user_type == AccountType.WRITER)).all()
 
     #writers = User.query.filter(User.orders.any((Orders.status == Status.completed) & (User.user_type == AccountType.WRITER))).all()
 
@@ -540,7 +697,8 @@ def create_order():
     if form.is_submitted():
         if form.validate_on_submit():
             order = Orders()
-            order.number_words = form.number_words.data
+            order.paper_length = form.number_words.data
+            order.page_words = form.length_type.data
             order.topic = form.topic.data
             order.description = form.description.data
             order.audience = form.audience.data
@@ -551,7 +709,7 @@ def create_order():
             order.example = form.example.data
             order.research_links = form.research_links.data
             order.seo = form.seo.data
-            order.description = form.business_description.data
+            order.business_description = form.business_description.data
             order.comments = form.comments.data
             order.price = form.price.data
             order.deadline = parse(form.deadline_date.data + " " + form.deadline_time.data)

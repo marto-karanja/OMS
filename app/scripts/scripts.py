@@ -19,7 +19,7 @@ from werkzeug.security import generate_password_hash
 
 
 
-from app.models import CurrentOrders, BiddingOrders, UnassignedOrders, PaidOrders, RevisionOrders, CompletedOrders, PaidOrders, FinishedOrders, OrderTransactions, Writers, Status, Payments
+from app.models import CurrentOrders, BiddingOrders, UnassignedOrders, PaidOrders, RevisionOrders, CompletedOrders, PaidOrders, FinishedOrders, OrderTransactions, Writers, Status, Payments, Fines, FineOrders
 
 from app import db
 from app.emails import send_message, send_admin_message, send_customer_message
@@ -36,7 +36,7 @@ def set_order_progress(order, action, writer_id, writer_name):
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
             job_status = order.status
@@ -86,7 +86,7 @@ def set_order_progress(order, action, writer_id, writer_name):
         db.session.add(order)
         db.session.add(current_order)
         db.session.add(transaction)
-        db.session.add(writer)
+        db.session.add(current_writer)
         db.session.commit()
     except Exception as e:
         # for resetting non-commited .add()
@@ -456,14 +456,14 @@ def set_order_revision(order, action, writer_id, writer_name):
 
 
 ###------------------------------------------------------------------------
-def set_order_finished(order, action, writer_id, writer_name):
+def set_order_finished(order, action, writer_id, writer_name, amount = None):
     reassign = False
 
     current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
             job_status = order.status
@@ -473,21 +473,29 @@ def set_order_finished(order, action, writer_id, writer_name):
 
         current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
         current_writer.job_status = Status.reassigned
+
+
+        
         
         # create transaction
         recent_transaction  = OrderTransactions(
             order = order,
-            description = "Order reassigned from [{}] Current status: [{}]".format(current_writer.writer.name, action),
+            description = "Order reassigned from [{}]. Current status: [{}]".format(current_writer.name, action),
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+            # set order amount
+    if amount is None:
+        current_writer.amount_paid = order.price
+    else:
+        current_writer.amount_paid = amount
     order.status = action
     order.writer_id = writer_id
 
     # create transaction
     transaction  = OrderTransactions(
         order = order,
-        description = "Order set to status [{}]".format(order.status),
+        description = "Order set to status [{}]. Paid amount to writer [{}]".format(order.status, amount),
         editor_id = order.editor_id,
         writer_id = None
 
@@ -519,13 +527,13 @@ def set_order_finished(order, action, writer_id, writer_name):
             msg = "Order reassigned from {}".format(current_writer.writer.name)
             flash(msg)
 
-        msg = "Order set to [FINISHED status] Current Writer: [{}]".format(writer_name, action)
+        msg = "Order set to status [FINISHED] Current Writer: [{}], Paid amount[{}]".format(writer_name, order.price)
         flash(msg)
 
 
 
 #####------------------------------------------------------------------------
-def set_order_paid(order, action, writer_id, writer_name):
+def set_order_paid(order, action, writer_id, writer_name, amount = None):
 
     reassign = False
 
@@ -562,11 +570,24 @@ def set_order_paid(order, action, writer_id, writer_name):
         writer_id = None
 
     )
+    # check if an amount was sent by editor else pay order price
+    if amount is None:
+        amount = order.price
+    # create payment object
+    now = datetime.datetime.now()
+    payment_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    payment = Payments(
+        writer_id = writer_id,
+        payment_date = now.strftime("%Y-%m-%d %H:%M:%S"),
+        description = f"Payment on {payment_time}",
+        amount_paid = amount
+    )
     # create paid order
     paid_order = PaidOrders(
         order = order,
         description = "Payment for order #{} by Writer: [{}] completed".format(order.id,writer_name),
         editor_id = session['user_id'],
+        payment = payment
         )
 
     try:
@@ -594,6 +615,87 @@ def set_order_paid(order, action, writer_id, writer_name):
 
 
 
+###----------------------------------------------------------------------
+def set_order_fine(order, action, writer_id, writer_name, amount = None):
+    
+    reassign = False
+
+    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    if current_writer is None:
+        # create writer entry for the order
+            # update writers table
+        current_writer = Writers(
+            writers_id = writer_id,
+            order = order,
+            job_status = order.status
+            )
+    elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
+        reassign = True
+
+        current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
+        current_writer.job_status = Status.reassigned
+        
+        # create transaction
+        recent_transaction  = OrderTransactions(
+            order = order,
+            description = "Order was fined amount {}".format(amount),
+            editor_id = session['user_id'],
+            writer_id = writer_id
+            )
+    order.status = action
+    order.writer_id = writer_id
+
+    # create transaction
+    transaction  = OrderTransactions(
+        order = order,
+        description = "Order set to status [{}]".format(order.status),
+        editor_id = order.editor_id,
+        writer_id = None
+
+    )
+    # check if an amount was sent by editor else pay order price
+
+    # create payment object
+    now = datetime.datetime.now()
+    payment_time = now.strftime("%Y-%m-%d %H:%M:%S")
+    fine = Fines(
+        writer_id = writer_id,
+        fine_date = now.strftime("%Y-%m-%d %H:%M:%S"),
+        description = f"Payment on {payment_time}",
+        amount_fined = amount
+    )
+    # create paid order
+    fine_order = FineOrders(
+        order = order,
+        description = "Fine for order #{} KES {} applied to Writer: [{}]".format(order.id,amount, writer_name),
+        editor_id = session['user_id'],
+        fine = fine
+        )
+
+    try:
+        db.session.add(order)
+        if reassign:
+            db.session.add(recent_transaction)
+        db.session.add(fine_order)
+        db.session.add(transaction)
+        db.session.commit()
+    except Exception as e:
+        # for resetting non-commited .add()
+        db.session.rollback()
+        db.session.flush()
+        print("Failed to set order status to [Paid]")
+        flash('Database Error: Failed to set order status to [Paid]"')
+        print(e)
+    else:
+        # on successful saving
+        if reassign:
+            msg = "Order reassigned from {}".format(current_writer.writer.name)
+            flash(msg)
+
+        msg = "Order #{} done by Writer: [{}] was fined KES {}/=".format(order.id, writer_name, amount)
+        flash(msg)
+
+
 
 #####-----actions
 Actions = {
@@ -604,7 +706,8 @@ Actions = {
     "completed" : set_order_completed,
     "revision" : set_order_revision,
     "finished" : set_order_finished,
-    "paid" : set_order_paid
+    "paid" : set_order_paid, 
+    "fine" : set_order_fine
 }
 
 Operations = {
@@ -677,4 +780,25 @@ def set_orders_as_paid(paid_writers):
     else:
 
         msg = f"{orders_processed} Orders were marked as paid"
+        flash(msg)
+
+
+
+def set_order_rating(writer_id ,order_id, rating):
+    writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order_id == order_id)).first()
+    writer.rating = rating
+
+    try:
+        db.session.add(writer)
+        db.session.commit()
+    except Exception as e:
+        # for resetting non-commited .add()
+        db.session.rollback()
+        db.session.flush()
+        print("Failed to set order rating")
+        msg = 'Database Error: Failed to set order rating for order #[{}]'.format(order_id)
+        flash(msg)
+        print(e)
+    else:
+        msg = "Order #{} rating = {}".format(order_id,  rating)
         flash(msg)

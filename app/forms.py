@@ -7,7 +7,7 @@ from click import password_option
 from flask_wtf import FlaskForm
 from wtforms import StringField, IntegerField, TextAreaField, HiddenField, SubmitField,FloatField, SelectField, EmailField, PasswordField, BooleanField, DecimalField, DateField
 from wtforms.validators import InputRequired, Email, EqualTo, ValidationError, Length
-from .models import Department, TransactionMethod, User, EnglishCountry, Person, Status, Department, EducationLevel
+from .models import Department, TransactionMethod, User, EnglishCountry, Person, Status, Department, EducationLevel, Length_type
 from wtforms import MultipleFileField, FileField
 
 
@@ -72,6 +72,7 @@ class RegisterForm(FlaskForm):
 #######------------------------------------------------
 class OrderForm(FlaskForm):
     number_words = StringField("Length/ number of words:", validators=[InputRequired()])
+    length_type = SelectField('Pages/Words', validators=[InputRequired()], choices = [(Length_type.WORDS.name, Length_type.WORDS.value),(Length_type.PAGES.name, Length_type.PAGES.value)])
     topic = StringField("Topic:")
     description = TextAreaField("Description:")
     audience = StringField("Audience:")
@@ -161,3 +162,19 @@ class UserEditForm(FlaskForm):
     about_me = TextAreaField("About me")
     education_level = SelectField('Education Level', choices = [(EducationLevel.HIGH_SCHOOL.name, EducationLevel.HIGH_SCHOOL.value),(EducationLevel.CERTIFICATE.name, EducationLevel.CERTIFICATE.value),(EducationLevel.DIPLOMA.name, EducationLevel.DIPLOMA.value) , (EducationLevel.UNDERGRADUATE.name, EducationLevel.UNDERGRADUATE.value)])
     certificate_path = FileField('Profile picture Upload')
+
+class ReassignForm(FlaskForm):
+    payment = DecimalField("Payment Amount:", places=2, rounding=None)
+    fine = DecimalField("Fine Amount:", places=2, rounding=None)
+    submit = SubmitField('Reassign Order')
+
+class CompleteForm(FlaskForm):
+    payment = DecimalField("Payment Amount:", places=2, rounding=None)
+    rating = IntegerField("Editor rating:")
+    submit = SubmitField('Mark Order as Complete')
+
+
+class RevisionForm(FlaskForm):
+    subject = StringField('Subject', validators=[InputRequired()])
+    message = TextAreaField('Message')
+    submit = SubmitField('Submit')

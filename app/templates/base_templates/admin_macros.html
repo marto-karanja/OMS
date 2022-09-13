@@ -73,20 +73,37 @@
 </form>
 {% endmacro %}
 
+{% macro render_revision_message_form(message_form, order) %}
+<h4>Send Writer revision instructions</h4>
+<form  method="post" action ="{{url_for('admin.process_revision_order', order_id = order.id)}}">
+    {{ message_form.csrf_token }}
+    <div class="form-group">
+        {{ message_form.subject(class="form-control", placeholder = "Subject") }}
+    </div>
+
+            {{ message_form.message(class="summernote") }}
+        
+<button type="submit" class="btn btn-rounded btn-primary">Send Revision Instructions</button>
+</form>
+{% endmacro %}
+
+
 {% macro render_admin_order(order) %}
 <div class="table-responsive">
     <table class="table table-hover table-primary">
         <thead class="bg-primary text-white">
             <tr>
                 <th scope="col"><strong>Order Status:</strong></th>
-                <td scope="col">{{order.status.value}}</td>
-                <th scope="col"><strong>Writer Assigned</strong></th>
+                <td scope="col"><button class="btn btn-block btn-danger">{{order.status.value}}</button></td>
+                <th scope="col"><strong>Writer Assigned:</strong></th>
                 <td scope="col">
-                    {% if order.writer.name != "" %}
+                    <button class="btn btn-block btn-light">
+                    {% if order.writer.name %}
                         {{order.writer.name}}
                     {% else %}
-                    <strong>None</strong>
+                        No Writer Assigned
                     {% endif %}
+                    </button>
                 </td>
             </tr>
         </thead>
@@ -102,7 +119,8 @@
                 <td>{{order.topic}}</td>
                 <th scope="row"><strong>Paper Length:</strong></th>
                 <td>
-                    {% if order.paper_length.is_integer()  %} {{ order.paper_length|int}} {% else %} {{ order.paper_length|string }} {% endif %}{{order.page_words.value}}</td>
+                    {{order.paper_length}} <strong>{{order.page_words.value}}</strong>
+                </td>
             </tr>
             <tr>
                 <th scope="row"><strong>Description:</strong></th>
@@ -132,7 +150,7 @@
             </tr>
             <tr>
                 <th scope="row"><strong>Business Descriptions:</strong></th>
-                <td colspan="3" style = "white-space: pre-wrap;">{{order.description}}</td>
+                <td colspan="3" style = "white-space: pre-wrap;">{{order.business_description}}</td>
             </tr>
             <tr>
                 <th scope="row"><strong>Comments:</strong></th>
@@ -333,37 +351,18 @@
                 <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">#{{order.id}}</a></td>
                 <td>
                     {% if order.writer.name|length > 0 %}
-                        <h5 class="mb-0 font-16 font-medium">{{ order.writer.name }}</h5><span>{{order.writer.email}}</span>
+                        <h5 class="mb-0 font-16 font-medium">{{ order.writer.name }}</h5>
                     {% else %}
                         <span>No writer assigned</span>
                     {% endif %}
                 </td>
-                <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">{{order.topic}}</a></td>
+                <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">{{order.topic[:25]}}</a></td>
                 <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">{{ order.difference }}</a></td>
-                <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">{% if order.paper_length.is_integer()  %} 
-                    {{ order.paper_length|int}} 
-                {% else %} 
-                    {{ order.paper_length|string }} {% endif %}{{order.page_words.value}}
+                <td><a href ="{{url_for('admin.edit_order', order_id = order.id)}}">{{order.paper_length | int}} <strong>{{order.page_words.value}}</strong>
                 </a></td>
                 <td class="blue-grey-text  text-darken-4 font-medium">KES {{order.price }}</td>
                 <td>
-                    {% if order.status.value == "In Progress" %}
-                        <i class="fa fa-circle text-orange" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Reassigned" %}
-                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}</i> {{order.status.value}}
-                    {% elif order.status.value == "Unassigned" %}
-                        <i class="fa fa-circle text-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Bid Status" %}
-                        <i class="fa fa-circle text-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Completed" %}
-                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Revision" %}
-                        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Finished" %}
-                        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% elif order.status.value == "Paid" %}
-                        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{order.status.value}}"></i> {{order.status.value}}
-                    {% endif %}
+                    {{ display_order_status(order.status) }}
                 </td>
                 <td><a type="button" href="{{url_for('admin.edit_order', order_id = order.id)}}" class="btn waves-effect waves-light btn-rounded btn-primary">View Details</a></td>
                 
@@ -398,8 +397,8 @@
                 <th>Order No</th>
                 <th>Writer's Name</th>
                 <th>Paper Length</th>
-                <th>Price</th>                
-                
+                <th>Order Status</th> 
+                <th>Price</th>               
                 <th>Select</th>
             </tr>
         </thead>
@@ -410,15 +409,15 @@
             <tr>
                 <td>#{{  order.id }}</td>
                 <td>{{ order.writer.name }}</td>
-                <td>{{ print_length(order.paper_length, order.page_words.value) }}
-
+                <td>{{ order.paper_length }} {{ order.page_words.value }}
                 </td>
+                <td>{{ display_order_status(order.status) }}</td>
                 <td>KES {{ order.price }}/=</td>
                 <td>{{ checkbox_field(checked=True) }}</td>
             </tr>
             {% endfor %}
             <tr>
-                <td colspan="3"><strong>Total Amount Pending:</strong></td>
+                <td colspan="4"><strong>Total Amount Pending:</strong></td>
                 <td><strong>KES {{ ns.sum }}/=</strong></td>
                 <td><strong><input type="submit" value="Process Payment"></strong></td>
             </tr>
@@ -442,3 +441,65 @@
 {% else %} 
 {{ length|string }} {% endif %}{{ length_type }}
 {% endmacro %}
+
+{% macro render_order_reassign_form(order, Status, reassign_form) %}
+<div class="card text-white bg-warning">
+    <div class="card-header">
+        <h4 class="mb-0 text-white">Reassign Order & Apply Fine</h4></div>
+    <div class="card-body">
+        <h4 class="card-title">Apply Payment and fine amount</h4>
+        
+        <form  method="post" action ="{{url_for('admin.reassign_current_order', order_id = order.id)}}">
+            {{ reassign_form.csrf_token }}
+            <div class="form-group">
+                {{ reassign_form.payment.label }} <small>Order amount KES {{order.price}}/=</small> {{ reassign_form.payment(class="form-control", value = "0", placeholder = "KES 0") }}
+            </div>
+            <div class="form-group">
+                {{ reassign_form.fine.label }} {{ reassign_form.fine(class="form-control", placeholder="KES 0", value = "0") }}
+            </div>
+            <button type="submit" class="btn btn-dark">Reassign Order</button>
+        </form>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_order_completion_form(order, Status, complete_form) %}
+<div class="card text-white bg-info">
+    <div class="card-header">
+        <h4 class="mb-0 text-white">Mark Order as Finished & Apply Rating</h4></div>
+    <div class="card-body">
+        <h4 class="card-title">Assign payment and rating for order</h4>
+        
+        <form  method="post" action ="{{url_for('admin.finish_current_order', order_id = order.id)}}">
+            {{ complete_form.csrf_token }}
+            <div class="form-group">
+                {{ complete_form.payment.label }} {{ complete_form.payment(class="form-control", value = order.price) }}
+            </div>
+            <div class="form-group">
+                {{ complete_form.rating.label }} (0-10) {{ complete_form.rating(class="form-control", min = 0, max = 10, value=5) }}
+            </div>
+            <button type="submit" class="btn btn-dark">Mark Order as Finished</button>
+        </form>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro display_order_status(status)%}
+    {% if status.value == "In Progress" %}
+        <i class="fa fa-circle text-orange" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Reassigned" %}
+        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Unassigned" %}
+        <i class="fa fa-circle text-success" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Bid Status" %}
+        <i class="fa fa-circle text-primary" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Completed" %}
+        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Revision" %}
+        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Finished" %}
+        <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Paid" %}
+        <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+    {% endif %}
+{% endmacro%}

@@ -90,61 +90,35 @@
                             <div class="card-body">
                                 <h4 class="card-title">Order #{{order.id}} Details</h4>
                                 <h6 class="card-subtitle">Date created:<code>{{order.time_created}}</code> Last updated <code>{{order.last_edited }}</code></h6>
-                                
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        {% if order.status in [Status.completed, Status.progress]%}
-                                            <a  class="btn btn-info btn-block" href = "{{ url_for('admin.set_order_finished', order_id = order.id) }}">Mark Order as Finished</a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-4">
-                                        {% if order.status in [Status.completed, Status.finished, Status.paid, Status.progress] %}
-                                            <a  class="btn btn-warning btn-block" href = "{{ url_for('admin.set_order_reassigned', order_id = order.id) }}">Reassign Order</a>
-                                        {% endif %}
-                                    </div>
-                                    <div class="col-md-4">
-                                        {% if order.status in [Status.completed, Status.finished, Status.paid, Status.progress] %}
-                                            <a  class="btn btn-danger btn-block" href = "{{ url_for('admin.set_order_revision', order_id = order.id) }}">Set Order on Revision</a>
-                                        {% endif %}
-                                    </div>
-
-                                </div>
-                                
-                                <br>
                                 {% import 'base_templates/admin_macros.html' as macros %}
                                 <!---Order management form--->
-
-                                {{ display_reassign_complete_forms(order, reassign_form, complete_form)}}
-                                
-
-                                
-
                                                                 
                                 <!-- Nav tabs -->
                                 <ul class="nav nav-tabs" role="tablist">
-                                    <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#order" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">Order Instructions</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link " data-toggle="tab" href="#order" role="tab"><span class="hidden-sm-up"><i class="ti-home"></i></span> <span class="hidden-xs-down">Order Instructions</span></a> </li>
                                     <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#files" role="tab"><span class="hidden-sm-up"><i class="ti-briefcase"></i></span> <span class="hidden-xs-down">Order Files</span></a> </li>
-                                    <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#messages" role="tab"><span class="hidden-sm-up"><i class="ti-email"></i></span> <span class="hidden-xs-down">Messages</span></a> </li>
+                                    <li class="nav-item"> <a class="nav-link active" data-toggle="tab" href="#messages" role="tab"><span class="hidden-sm-up"><i class="ti-email"></i></span> <span class="hidden-xs-down">Set Order on Revision</span></a> </li>
                                     <li class="nav-item"> <a class="nav-link" data-toggle="tab" href="#history" role="tab"><span class="hidden-sm-up"><i class="ti-save-alt"></i></span> <span class="hidden-xs-down">Order History</span></a> </li>
                                 </ul>
                                 <!-- Tab panes -->
                                 <div class="tab-content tabcontent-border">
-                                    <div class="tab-pane active" id="order" role="tabpanel">
+                                    <div class="tab-pane p-20" id="order" role="tabpanel">
                                         {{ macros.render_admin_order(order) }}
                                     </div>
                                     <div class="tab-pane  p-20" id="files" role="tabpanel">
                                         {{ macros.render_admin_files(file_form, order) }}
                                     </div>
-                                    <div class="tab-pane p-20" id="messages" role="tabpanel">
-                                        {{ macros.render_message_form(message_form, order) }}
-                                        <br/>
+                                    <div class="tab-pane active" id="messages" role="tabpanel">
+                                        <br>
+                                        {{ macros.render_revision_message_form(revision_form, order) }}
+                                        <br>
                                         {{ macros.render_messages(messages) }}
                                         
                                         
                                     </div>
                                     <div class="tab-pane p-20" id="history" role="tabpanel">
-                                        {{ macros.render_message_form(message_form, order) }}
-                                        <br/>
+                                        {{ macros.render_revision_message_form(revision_form, order) }}
+                                        <br>
                                         {{ macros.render_messages(messages) }}
                                         
                                         
@@ -326,19 +300,3 @@
 
 
 {% endblock %}
-
-{% macro display_reassign_complete_forms(order, reassign_form, complete_form) %}
-{% set allowed_statuses = [Status.progress.value, Status.revision.value, Status.completed.value] %}
-{% import 'base_templates/admin_macros.html' as form_macros %}
-{% if order.status.value in allowed_statuses %}
-<div class="row">
-    <div class="col-md-6">
-        {{ form_macros.render_order_reassign_form(order, Status, reassign_form)}}
-    </div>
-    <div class="col-md-6">
-        {{ form_macros.render_order_completion_form(order, Status, complete_form)}}
-    </div>
-
-</div>
-{% endif %}
-{% endmacro %}
