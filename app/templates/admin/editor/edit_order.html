@@ -93,12 +93,12 @@
                                 
                                 <div class="row">
                                     <div class="col-md-4">
-                                        {% if order.status in [Status.completed, Status.progress]%}
+                                        {% if order.status in [Status.completed, Status.progress, Status.revision]%}
                                             <a  class="btn btn-info btn-block" href = "{{ url_for('admin.set_order_finished', order_id = order.id) }}">Mark Order as Finished</a>
                                         {% endif %}
                                     </div>
                                     <div class="col-md-4">
-                                        {% if order.status in [Status.completed, Status.finished, Status.paid, Status.progress] %}
+                                        {% if order.status in [Status.completed, Status.finished, Status.paid, Status.progress, Status.revision] %}
                                             <a  class="btn btn-warning btn-block" href = "{{ url_for('admin.set_order_reassigned', order_id = order.id) }}">Reassign Order</a>
                                         {% endif %}
                                     </div>
@@ -150,6 +150,19 @@
                                         
                                     </div>
                                     
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-3">
+                                    </div>
+                                    <div class="col-md-3">
+                                            <a  class="btn btn-warning btn-block" href = "{{ url_for('admin.set_order_reassigned', order_id = order.id) }}">Edit Order</a>
+                                    </div>
+                                    <div class="col-md-3">
+                                            <a  class="btn btn-danger btn-block" href = "{{ url_for('admin.set_order_revision', order_id = order.id) }}">Delete  Order</a>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>

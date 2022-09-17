@@ -2,6 +2,7 @@
 import os
 import datetime
 import re
+import logging
 from time import time
 
 from flask import Flask
@@ -27,20 +28,22 @@ from app.forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm
 from app.mpesa import send_money_request
 
 
-
+logger = logging.getLogger('Order Update')
 
 def set_order_progress(order, action, writer_id, writer_name):
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
     # check if order has an entry in writers table
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
         current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
+            job_status = action
             )
+        logger.debug("Creating new entry for the writer")
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.paid, Status.completed]:
         reassign = True
         print(current_writer)
@@ -53,6 +56,12 @@ def set_order_progress(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
 
 
     # update current order
@@ -78,8 +87,11 @@ def set_order_progress(order, action, writer_id, writer_name):
 
     )
 
+    logger.debug("Updating current order details")
+
 
     try:
+        logger.debug("Attempting to save to database")
         #db.session.add(current_writer)
         if reassign:
             db.session.add(recent_transaction)
@@ -92,7 +104,7 @@ def set_order_progress(order, action, writer_id, writer_name):
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
-        print("Failed to assign order")
+        logger.debug("Unable to save the order")
         flash('Database Error: Failed to assign order')
         print(e)
     else:
@@ -102,6 +114,7 @@ def set_order_progress(order, action, writer_id, writer_name):
             flash(msg)
         msg = "Order was assigned successfully to {}".format( writer_name)
         flash(msg)
+        logger.debug(msg)
 
 
 
@@ -109,17 +122,19 @@ def set_order_progress(order, action, writer_id, writer_name):
 
 #-----------------------------------------------------------------------
 def set_bidding_status(order, action, writer_id, writer_name):
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
         # check if order has an entry in writers table
     current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
-            )    
+            job_status = action
+            )
+        logger.debug("Creating a new entry for the writer")    
     # update current action
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.paid, Status.completed]:
         reassign = True
@@ -134,6 +149,12 @@ def set_bidding_status(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+        
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
 
     order.status = action
     order.writer_id = None
@@ -151,7 +172,10 @@ def set_bidding_status(order, action, writer_id, writer_name):
 
     )
 
+    logger.debug("Updating current order details to save in database")
+
     try:
+        logger.debug("Attempting to save to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
@@ -162,7 +186,7 @@ def set_bidding_status(order, action, writer_id, writer_name):
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
-        print("Failed to set status")
+        logger.debug('Database Error: Failed to set order status to bidding')
         flash('Database Error: Failed to set order status to bidding')
         logging.DEBUG(e)
     else:
@@ -173,6 +197,7 @@ def set_bidding_status(order, action, writer_id, writer_name):
         
         msg = "Order successfuly set to [Bidding status]"
         flash(msg)
+        logger.debug(msg)
 
 
 
@@ -180,17 +205,19 @@ def set_bidding_status(order, action, writer_id, writer_name):
 
 ######-------------------------------------------------------------
 def set_order_unassigned(order, action, writer_id, writer_name):
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
 
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
         writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
-            )    
+            job_status = action
+            )
+        logger.debug("Creating a new entry for the writer")     
     # update current action
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.paid, Status.completed]:
         reassign = True
@@ -205,6 +232,11 @@ def set_order_unassigned(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
 
     order.status = action
     order.writer_id = None
@@ -222,8 +254,10 @@ def set_order_unassigned(order, action, writer_id, writer_name):
         writer_id = None
 
     )
+    logger.debug("Updating current order details to save in database")
 
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
@@ -234,7 +268,7 @@ def set_order_unassigned(order, action, writer_id, writer_name):
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
-        print("Failed to unassign order")
+        logger.debug('Database Error: Failed to unassign order')
         flash('Database Error: Failed to unassign order')
         print(e)
     else:
@@ -245,6 +279,7 @@ def set_order_unassigned(order, action, writer_id, writer_name):
 
         msg = "Order was unassigned successfully. Current status: [{}]".format( action)
         flash(msg)
+        logger.debug(msg)
 
 
 
@@ -252,23 +287,24 @@ def set_order_unassigned(order, action, writer_id, writer_name):
 
 #---------------------------------------------------------------------------
 def set_order_reassigned(order, action, writer_id, writer_name):
-    
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
 
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
-            )    
+            job_status = action
+            )
+        logger.debug("Creating a new entry for the writer")    
     # update current action
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid]:
         reassign = True
 
-        current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
+        current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
         current_writer.job_status = Status.reassigned
         
         # create transaction
@@ -278,6 +314,11 @@ def set_order_reassigned(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
 
     order.status = action
     
@@ -290,19 +331,23 @@ def set_order_reassigned(order, action, writer_id, writer_name):
         writer_id = None
 
     )
+    logger.debug("Updating current order details to save in database")
+
 
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
         db.session.add(transaction)
+        db.session.add(current_writer)
         db.session.commit()
     except Exception as e:
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
-        print("Failed to unassign order")
-        flash('Database Error: Failed to unassign order')
+        logger.debug('Database Error: Failed to set order to Reassigned Status')
+        flash('Database Error: Failed to set order to Reassigned Status')
         print(e)
     else:
         # on successful saving
@@ -312,22 +357,25 @@ def set_order_reassigned(order, action, writer_id, writer_name):
 
         msg = "Order was reassigned successfully. Current status: [{}]".format( action)
         flash(msg)
+        logger.debug(msg)
 
 
 
 ##---------------------------------------------------------
 def set_order_completed(order, action, writer_id, writer_name):
-    
+    logger.debug("Setting order to status: [%s]", action)
+
     reassign = False
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
-            ) 
+            job_status = action
+            )
+        logger.debug("Creating a new entry for the writer")   
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
         reassign = True
 
@@ -341,6 +389,13 @@ def set_order_completed(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
+
     order.status = action
     order.writer_id = writer_id
 
@@ -359,19 +414,24 @@ def set_order_completed(order, action, writer_id, writer_name):
         editor_id = session['user_id'],
         )
 
+    logger.debug("Updating current order details to save in database")
+
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
         db.session.add(completed_order)
         db.session.add(transaction)
+        db.session.add(current_writer)
         db.session.commit()
     except Exception as e:
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
         print("Failed to set order status to [Complete]")
-        flash('Database Error: Failed to set order status to [Complete]"')
+        logger.debug('Database Error: Failed to set order status to [Complete]')
+        flash('Database Error: Failed to set order status to [Complete]')
         print(e)
     else:
         # on successful saving
@@ -381,23 +441,26 @@ def set_order_completed(order, action, writer_id, writer_name):
 
         msg = "Order was completed successfully by {}. Current status: [{}]".format(order.writer.name, action)
         flash(msg)
+        logger.debug(msg)
 
 
 
 ###-----------------------------------------------------------------------------
 def set_order_revision(order, action, writer_id, writer_name):
+    logger.debug("Setting order to status: [%s]", action)
 
     reassign = False
 
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
+            job_status = action
             )
+        logger.debug("Creating a new entry for the writer")  
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
         reassign = True
 
@@ -411,6 +474,13 @@ def set_order_revision(order, action, writer_id, writer_name):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
+
     order.status = action
     order.writer_id = writer_id
 
@@ -428,12 +498,15 @@ def set_order_revision(order, action, writer_id, writer_name):
         description = "Order set to [revision status] Current Writer: [{}]".format(writer_name),
         editor_id = session['user_id'],
         )
+    logger.debug("Updating current order details to save in database")
 
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
         db.session.add(revision_order)
+        db.session.add(current_writer)
         db.session.add(transaction)
         db.session.commit()
     except Exception as e:
@@ -441,7 +514,8 @@ def set_order_revision(order, action, writer_id, writer_name):
         db.session.rollback()
         db.session.flush()
         print("Failed to set order status to [Revision]")
-        flash('Database Error: Failed to set order status to [Revision]"')
+        logger.debug('Database Error: Failed to set order status to [Revision]')
+        flash('Database Error: Failed to set order status to [Revision]')
         print(e)
     else:
         # on successful saving
@@ -451,23 +525,26 @@ def set_order_revision(order, action, writer_id, writer_name):
 
         msg = "Order set to [revision status] Current Writer: [{}]".format(writer_name, action)
         flash(msg)
+        logger.debug(msg)
 
 
 
 
 ###------------------------------------------------------------------------
 def set_order_finished(order, action, writer_id, writer_name, amount = None):
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
 
-    current_writer = Writers.query.filter(Writers.writers_id == order.writer_id and Writers.order == order).first()
+    current_writer = Writers.query.filter(Writers.writers_id == writer_id and Writers.order == order).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
         current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
+            job_status = action
             )
+        logger.debug("Creating a new entry for the writer")  
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
         reassign = True
 
@@ -485,6 +562,12 @@ def set_order_finished(order, action, writer_id, writer_name, amount = None):
             writer_id = writer_id
             )
             # set order amount
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
     if amount is None:
         current_writer.amount_paid = order.price
     else:
@@ -506,11 +589,14 @@ def set_order_finished(order, action, writer_id, writer_name, amount = None):
         description = "Order set to [Finished status] Current Writer: [{}]".format(writer_name),
         editor_id = session['user_id'],
         )
+    logger.debug("Updating current order details to save in database")
 
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
+        db.session.add(current_writer)
         db.session.add(finished_order)
         db.session.add(transaction)
         db.session.commit()
@@ -518,8 +604,9 @@ def set_order_finished(order, action, writer_id, writer_name, amount = None):
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
+        logger.debug('Database Error: Failed to set order status to [Complete]"')
         print("Failed to set order status to [Complete]")
-        flash('Database Error: Failed to set order status to [Complete]"')
+        flash('Database Error: Failed to set order status to [Complete]')
         print(e)
     else:
         # on successful saving
@@ -529,23 +616,26 @@ def set_order_finished(order, action, writer_id, writer_name, amount = None):
 
         msg = "Order set to status [FINISHED] Current Writer: [{}], Paid amount[{}]".format(writer_name, order.price)
         flash(msg)
+        logger.debug(msg)
 
 
 
 #####------------------------------------------------------------------------
 def set_order_paid(order, action, writer_id, writer_name, amount = None):
+    logger.debug("Setting order to status: [%s]", action)
 
     reassign = False
 
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
-        writer = Writers(
+        current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
+            job_status = action
             )
+        logger.debug("Creating a new entry for the writer")  
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
         reassign = True
 
@@ -559,6 +649,14 @@ def set_order_paid(order, action, writer_id, writer_name, amount = None):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
+
     order.status = action
     order.writer_id = writer_id
 
@@ -590,7 +688,10 @@ def set_order_paid(order, action, writer_id, writer_name, amount = None):
         payment = payment
         )
 
+    logger.debug("Updating current order details to save in database")
+
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
@@ -601,8 +702,9 @@ def set_order_paid(order, action, writer_id, writer_name, amount = None):
         # for resetting non-commited .add()
         db.session.rollback()
         db.session.flush()
+        logger.debug('Database Error: Failed to set order status to [Paid]')
         print("Failed to set order status to [Paid]")
-        flash('Database Error: Failed to set order status to [Paid]"')
+        flash('Database Error: Failed to set order status to [Paid]')
         print(e)
     else:
         # on successful saving
@@ -612,23 +714,25 @@ def set_order_paid(order, action, writer_id, writer_name, amount = None):
 
         msg = "Payment status for Order #{} done by Writer: [{}] is completed".format(order.id, writer_name)
         flash(msg)
+        logger.debug(msg)
 
 
 
 ###----------------------------------------------------------------------
 def set_order_fine(order, action, writer_id, writer_name, amount = None):
-    
+    logger.debug("Setting order to status: [%s]", action)
     reassign = False
 
-    current_writer = Writers.query.filter((Writers.writers_id == order.writer_id) & (Writers.order == order)).first()
+    current_writer = Writers.query.filter((Writers.writers_id == writer_id) & (Writers.order == order)).first()
     if current_writer is None:
         # create writer entry for the order
             # update writers table
         current_writer = Writers(
             writers_id = writer_id,
             order = order,
-            job_status = order.status
+            job_status = action
             )
+        logger.debug("Creating a new entry for the writer")
     elif order.status in [Status.progress, Status.revision, Status.finished, Status.completed, Status.paid] and order.writer_id != writer_id:
         reassign = True
 
@@ -642,6 +746,13 @@ def set_order_fine(order, action, writer_id, writer_name, amount = None):
             editor_id = session['user_id'],
             writer_id = writer_id
             )
+        logger.debug("Reassigning existing writer and creating new transaction")
+    else:
+        # update current job for the current writer
+        logger.debug("Updating current writer status")
+        current_writer.job_status = action
+
+
     order.status = action
     order.writer_id = writer_id
 
@@ -672,7 +783,10 @@ def set_order_fine(order, action, writer_id, writer_name, amount = None):
         fine = fine
         )
 
+    logger.debug("Updating current order details to save in database")
+
     try:
+        logger.debug("Attempting to save details to database")
         db.session.add(order)
         if reassign:
             db.session.add(recent_transaction)
@@ -684,7 +798,8 @@ def set_order_fine(order, action, writer_id, writer_name, amount = None):
         db.session.rollback()
         db.session.flush()
         print("Failed to set order status to [Paid]")
-        flash('Database Error: Failed to set order status to [Paid]"')
+        flash('Database Error: Failed to set order status to [Paid]')
+        logger.debug("Database Error: Failed to set order status to [Paid]")
         print(e)
     else:
         # on successful saving
@@ -694,6 +809,7 @@ def set_order_fine(order, action, writer_id, writer_name, amount = None):
 
         msg = "Order #{} done by Writer: [{}] was fined KES {}/=".format(order.id, writer_name, amount)
         flash(msg)
+        logger.debug(msg)
 
 
 

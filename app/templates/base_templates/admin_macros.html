@@ -391,7 +391,7 @@
     <h6 class="card-subtitle">Unpaid Orders summary</h6>
     <form  method="post" action ="{{url_for('admin.unpaid_orders')}}">
         {{ form.csrf_token }}
-    <table data-toggle="table" data-height="250" data-mobile-responsive="true" class="table-striped">
+    <table data-toggle="table" data-height="300" data-mobile-responsive="true" class="table-striped">
         <thead>
             <tr>
                 <th>Order No</th>
@@ -407,7 +407,7 @@
             {% for order, checkbox_field in zip(orders, form) %}
             {% set ns.sum = order.price + ns.sum %}
             <tr>
-                <td>#{{  order.id }}</td>
+                <td><a href="{{url_for('admin.edit_order', order_id = order.id)}}">#{{  order.id }}</a></td>
                 <td>{{ order.writer.name }}</td>
                 <td>{{ order.paper_length }} {{ order.page_words.value }}
                 </td>

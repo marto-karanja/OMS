@@ -96,7 +96,7 @@ class OrderForm(FlaskForm):
 class AssignForm(FlaskForm):
     writer_name = SelectField("Choose Writer:", coerce=int)
     bid_writers = SelectField("Writers who Bid:", coerce=str)
-    order_status = SelectField('Set Order Status to:', validators=[InputRequired()], choices = [(Status.unassigned.name, Status.unassigned.value),(Status.bid_status.name, Status.bid_status.value),(Status.progress.name, Status.progress.value), (Status.revision.name, Status.revision.value),  (Status.completed.name, Status.completed.value),  (Status.finished.name, Status.finished.value),  (Status.paid.name, Status.paid.value)])
+    order_status = SelectField('Set Order Status to:', validators=[InputRequired()], choices = [(Status.unassigned.name, Status.unassigned.value),(Status.bid_status.name, Status.bid_status.value),(Status.progress.name, Status.progress.value)])
 
 
 

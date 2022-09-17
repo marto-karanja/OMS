@@ -481,7 +481,10 @@ def prepare_order_views(order_id, template_string = None):
 @admin.route('/view_unpaid_orders', methods = ["GET", "POST"])
 @login_required
 def unpaid_orders():
-    orders = Orders.query.filter((Orders.status == Status.completed) | (Orders.status == Status.finished)).all()
+    #orders = Orders.query.filter((Orders.status == Status.completed) | (Orders.status == Status.finished)).all()
+    writers = Writers.query.join(Orders, Writers.order_id == Orders.id).filter((Writers.job_status == Status.finished) | (Writers.job_status == Status.completed)).all()
+
+    orders = [writer.order for writer in writers]
 
     # create checkboxes
     input_list = [str(order.id) for order in orders ]  # generate it as needed
@@ -508,10 +511,15 @@ def unpaid_orders():
 @admin.route('/writer_unpaid_orders?<writer_id>', methods = ["GET", "poST"])
 @login_required
 def writer_unpaid_orders(writer_id):
-    orders = Orders.query.filter((Orders.status == Status.completed) & (Orders.writer_id == writer_id)).all()
+    #orders = Orders.query.filter((Orders.status == Status.completed) & (Orders.writer_id == writer_id)).all()
+    #writers = Writers.query.options(joinedload(Writers.order)).filter((Writers.job_status == Status.completed) & (Writers.writers_id == writer_id)).all()
+    writers = Writers.query.join(Orders, Writers.order_id == Orders.id).filter((Writers.job_status == Status.finished) | (Writers.job_status == Status.completed) & (Writers.writers_id == writer_id)).all()
+
+    orders = [writer.order for writer in writers]
+    
 
     # create checkboxes
-    input_list = [str(order.id) for order in orders ]  # generate it as needed
+    input_list = [str(writer.order.id) for writer in writers ]  # generate it as needed
     prefs = create_dynamic_checkbox(input_list)
     form = prefs(request.form)
     if form.validate_on_submit():
@@ -525,7 +533,7 @@ def writer_unpaid_orders(writer_id):
 
         return redirect(url_for('admin.unpaid_orders'))
 
-    return render_template("admin/editor/writer_unpaid_orders.html", orders = orders, form = form, zip=zip)
+    return render_template("admin/editor/writer_unpaid_orders.html", writers = writers, orders= orders, form = form, zip=zip)
 
 
 
