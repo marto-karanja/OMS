@@ -23,7 +23,7 @@ from flask import send_from_directory
 
 
 from app.models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, Writers, Payments, ThreadStatus
-from app import db
+from app import db, app
 from app.emails import send_message, send_admin_message, send_customer_message
 from app.forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, ReassignForm, create_dynamic_checkbox, ReplyMessageForm, ReassignForm, CompleteForm, RevisionForm
 from app.mpesa import send_money_request
@@ -53,12 +53,25 @@ def home():
 @admin.route('/dashboard', methods=["GET", "POST"])
 @login_required
 def dashboard():
-    orders = Orders.query.order_by(asc(Orders.deadline)).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
+        
+    prev_url, next_url = return_page_links(orders, 'admin.dashboard')
 
-    return render_template("admin/editor/editor_dashboard.html", orders = orders)
+    return render_template("admin/editor/editor_dashboard.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
+
+
+
+def return_page_links(items, destination_string):
+    next_url = url_for(destination_string,  page=items.next_num) \
+        if items.has_next else None
+    prev_url = url_for(destination_string, page=items.prev_num) \
+        if items.has_prev else None
+
+    return prev_url, next_url
 
 
 
@@ -67,12 +80,17 @@ def dashboard():
 @admin.route('/all_orders', methods=["GET", "POST"])
 @login_required
 def all_orders():
-    orders = Orders.query.order_by(asc(Orders.deadline)).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/all_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.all_orders')
+
+
+
+    return render_template("admin/editor/all_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 
@@ -81,12 +99,15 @@ def all_orders():
 @admin.route('/progress_orders', methods=["GET", "POST"])
 @login_required
 def progress_orders():
-    orders = Orders.query.filter(Orders.status == Status.progress).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.progress).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/progress_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.progress_orders')
+
+    return render_template("admin/editor/progress_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 
@@ -95,12 +116,15 @@ def progress_orders():
 @admin.route('/bid_orders', methods=["GET", "POST"])
 @login_required
 def bid_orders():
-    orders = Orders.query.filter(Orders.status == Status.bid_status).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.bid_status).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/bid_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.bid_orders')
+
+    return render_template("admin/editor/bid_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 ##---return orders under revision status
@@ -108,12 +132,15 @@ def bid_orders():
 @admin.route('/revision_orders', methods=["GET", "POST"])
 @login_required
 def revision_orders():
-    orders = Orders.query.filter(Orders.status == Status.revision).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.revision).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/revision_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.revision_orders')
+
+    return render_template("admin/editor/revision_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 ##---return orders under disputed status
@@ -121,12 +148,16 @@ def revision_orders():
 @admin.route('/disputed_orders', methods=["GET", "POST"])
 @login_required
 def disputed_orders():
-    orders = Orders.query.filter(Orders.status == Status.disputed).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.disputed).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/disputed_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.disputed_orders')
+
+    return render_template("admin/editor/disputed_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 
@@ -135,12 +166,16 @@ def disputed_orders():
 @admin.route('/cancelled_orders', methods=["GET", "POST"])
 @login_required
 def cancelled_orders():
-    orders = Orders.query.filter(Orders.status == Status.cancelled).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.cancelled).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/cancelled_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.cancelled_orders')
+
+    return render_template("admin/editor/cancelled_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 ##---return orders under completed status
@@ -148,24 +183,31 @@ def cancelled_orders():
 @admin.route('/completed_orders', methods=["GET", "POST"])
 @login_required
 def completed_orders():
-    orders = Orders.query.filter(Orders.status == Status.completed).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.completed).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
+    
+    prev_url, next_url = return_page_links(orders, 'admin.completed_orders')
 
-    return render_template("admin/editor/completed_orders.html", orders = orders)
+    return render_template("admin/editor/completed_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 #---return orders under completed status
 #-------------------------------------------------------------------------
 @admin.route('/finished_orders', methods=["GET", "POST"])
 @login_required
 def finished_orders():
-    orders = Orders.query.filter(Orders.status == Status.finished).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.finished).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/finished_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.finished_orders')
+
+    return render_template("admin/editor/finished_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 ##---return orders under disputed status
@@ -173,12 +215,15 @@ def finished_orders():
 @admin.route('/paid_orders', methods=["GET", "POST"])
 @login_required
 def paid_orders():
-    orders = Orders.query.filter(Orders.status == Status.paid).all()
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.paid).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    for order in orders:        
+    for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
 
-    return render_template("admin/editor/paid_orders.html", orders = orders)
+    prev_url, next_url = return_page_links(orders, 'admin.paid_orders')
+
+    return render_template("admin/editor/paid_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
 
@@ -778,10 +823,15 @@ def available_orders():
 def view_inbox():
     page = request.args.get('page', 1, type=int)
     #user = User.query.filter(User.id == session['user_id'])
-    messages = Messages.query.filter(Messages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
+    messages = Messages.query.filter(Messages.sent_to.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])).order_by(desc(Messages.timestamp)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
-    #messages = current_user.messages_sent.order_by(Messages.timestamp.desc()).all()
-    return render_template("admin/editor/inbox.html", messages = messages.items)
+
+
+    next_url = url_for('admin.view_inbox',  page=messages.next_num) \
+        if messages.has_next else None
+    prev_url = url_for('admin.view_inbox', page=messages.prev_num) \
+        if messages.has_prev else None
+    return render_template("admin/editor/inbox.html", messages = messages.items, next_url=next_url, prev_url=prev_url)
 
 
 ####----------------------------------------------------------------------------------
@@ -793,8 +843,10 @@ def view_outbox():
 
     messages = Messages.query.filter((Messages.sent_from.in_([Department.ADMIN, Department.EDITOR, Department.FINANCE, Department.QUALITY])) & (Messages.thread_status == ThreadStatus.PARENT)).order_by(desc(Messages.timestamp)).paginate(page, 10, False)
 
+    prev_url, next_url = return_page_links(messages, 'admin.view_outbox')
+
     #messages = current_user.messages_sent.order_by(Messages.timestamp.desc()).all()
-    return render_template("admin/editor/outbox.html", messages = messages.items)
+    return render_template("admin/editor/outbox.html", messages = messages.items, next_url=next_url, prev_url=prev_url)
 
 
 

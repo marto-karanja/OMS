@@ -98,9 +98,10 @@
                                             &nbsp;
                                             <button type="button" class="btn btn-info btn-rounded m-t-10 mb-2 float-right" data-toggle="modal" data-target="#add-contact">Add New Order</button>
                                         </div>
-                                        {% import 'base_templates/admin_macros.html' as macros %}
+                                        {% import 'base_templates/admin/admin_macros.html' as macros %}
                                         {{ macros.render_orders_table(orders) }}
                                     </div>
+                                    {{ macros.render_pagination(prev_url, next_url) }}
                                 </div>
                             </div>
                 </div>

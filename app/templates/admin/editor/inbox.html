@@ -123,17 +123,8 @@
                         {% import 'base_templates/macros.html' as macros %}
                         {{ macros.render_messages_list(messages)}}
                     </div>
-                    <div class="p-15 mt-4">
-                        <nav aria-label="Page navigation example">
-                            <ul class="pagination justify-content-center">
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Previous</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">1</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">2</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">3</a></li>
-                                <li class="page-item"><a class="page-link" href="javascript:void(0)">Next</a></li>
-                            </ul>
-                        </nav>
-                    </div>
+                    {{ macros.render_pagination(prev_url, next_url)}}
+
                 </div>
                 <!-- ============================================================== -->
                 <!-- Right Part  Mail Compose -->

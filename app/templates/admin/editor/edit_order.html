@@ -111,7 +111,7 @@
                                 </div>
                                 
                                 <br>
-                                {% import 'base_templates/admin_macros.html' as macros %}
+                                {% import 'base_templates/admin/admin_macros.html' as macros %}
                                 <!---Order management form--->
 
                                 {{ display_reassign_complete_forms(order, reassign_form, complete_form)}}
@@ -342,7 +342,7 @@
 
 {% macro display_reassign_complete_forms(order, reassign_form, complete_form) %}
 {% set allowed_statuses = [Status.progress.value, Status.revision.value, Status.completed.value] %}
-{% import 'base_templates/admin_macros.html' as form_macros %}
+{% import 'base_templates/admin/admin_macros.html' as form_macros %}
 {% if order.status.value in allowed_statuses %}
 <div class="row">
     <div class="col-md-6">

@@ -192,9 +192,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {% import 'base_templates/admin_macros.html' as macros %}
+                                        {% import 'base_templates/admin/admin_macros.html' as macros %}
                                         {{ macros.render_orders_table(orders) }}
                                     </div>
+                                    {{macros.render_pagination(prev_url, next_url)}}
                                 </div>
                             </div>
                 </div>

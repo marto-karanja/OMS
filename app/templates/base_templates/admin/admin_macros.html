@@ -503,3 +503,18 @@
         <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
     {% endif %}
 {% endmacro%}
+
+{% macro render_pagination(prev_url, next_url) %}
+<div class="p-15 mt-4">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            {% if prev_url %}
+                <li class="page-item"><a class="page-link" href="{{ prev_url }}">Previous</a></li>
+            {% endif %}
+            {% if next_url %}
+                <li class="page-item"><a class="page-link" href="{{ next_url }}">Next</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endmacro %}
