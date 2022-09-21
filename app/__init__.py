@@ -61,13 +61,17 @@ def create_app(config_name):
     app.register_blueprint(auth_blueprint)
 
     # blueprint for non-auth parts of app
-    from .management_system import admin as admin_blueprint
+    from .app.admin.admin_views import admin as admin_blueprint
     app.register_blueprint(admin_blueprint)
+
+        # blueprint for non-auth parts of app
+    from .app.customer.customer_views import customer as customer_blueprint
+    app.register_blueprint(customer_blueprint)
 
     # blueprint for customer routes and controllers
  
 
-    from .writer_views import writer as writer_blueprint
+    from .app.writer.writer_views import writer as writer_blueprint
     app.register_blueprint(writer_blueprint)
 
 

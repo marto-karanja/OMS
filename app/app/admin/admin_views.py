@@ -22,12 +22,12 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, Writers, Payments, ThreadStatus
-from . import db
-from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, ReassignForm, create_dynamic_checkbox, ReplyMessageForm, ReassignForm, CompleteForm, RevisionForm
-from .mpesa import send_money_request
-from .scripts.scripts import set_bidding_status, set_order_progress, set_order_unassigned, Actions, Operations, set_orders_as_paid, set_order_rating
+from app.models import BiddingOrders, Bids, CurrentOrders, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Order_type, Messages, Department, Writers, Payments, ThreadStatus
+from app import db
+from app.emails import send_message, send_admin_message, send_customer_message
+from app.forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, AdminMessageForm, ReassignForm, create_dynamic_checkbox, ReplyMessageForm, ReassignForm, CompleteForm, RevisionForm
+from app.mpesa import send_money_request
+from app.scripts.scripts import set_bidding_status, set_order_progress, set_order_unassigned, Actions, Operations, set_orders_as_paid, set_order_rating
 
 from flask_sqlalchemy import SQLAlchemy
 

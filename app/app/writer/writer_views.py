@@ -24,11 +24,11 @@ from flask import send_from_directory
 
 
 
-from .models import BiddingOrders, CompletedOrders, CurrentOrders, EducationLevel, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department, ThreadStatus, ReadStatus
-from . import db
-from .emails import send_message, send_admin_message, send_customer_message
-from .forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, ReplyMessageForm, ReplyThreadedMessageForm, WriterOrderReplyMessageForm, UserEditForm
-from .management_system import find_time_difference
+from app.models import BiddingOrders, CompletedOrders, CurrentOrders, EducationLevel, FileOrders, OrderTransactions, Orders, User, Customers, Transactions, TransactionType, TransactionMethod, AccountType, EnglishCountry, Person, Status, Orders, Bids, Order_type, Messages, Department, ThreadStatus, ReadStatus
+from app import db
+from app.emails import send_message, send_admin_message, send_customer_message
+from app.forms import AssignForm, DepositForm, LoginForm, OrderForm, AssignForm, FileForm, MessageForm, ReplyMessageForm, ReplyThreadedMessageForm, WriterOrderReplyMessageForm, UserEditForm
+from app.app.admin.admin_views import find_time_difference
 
 
 from flask_sqlalchemy import SQLAlchemy
