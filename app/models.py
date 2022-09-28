@@ -15,14 +15,10 @@ class TransactionMethod(enum.Enum):
    MPESA = "M-pesa"
    CREDIT_CARD = "Credit Card"
    DEBIT_CARD = "Debit Card"
-
-
-
 class AccountType(enum.Enum):
     EDITOR = "Editor"
     WRITER = "Writer"
     ADMIN = "Admin"
-
 
 class EnglishCountry(enum.Enum):
     UK = "UK English"
@@ -45,6 +41,7 @@ class Status(enum.Enum):
     paid = "Paid"
     disputed = "Disputed"
     cancelled = "Cancelled"
+    deleted = "Deleted"
 
 class EducationLevel(enum.Enum):
     HIGH_SCHOOL = "High School"
@@ -166,6 +163,7 @@ class Orders(db.Model):
     rating = db.Column(db.Integer, server_default = "5")
     status = db.Column(db.Enum(Status), nullable = False,server_default=Status.unassigned.name)
     price = db.Column(db.Numeric(65,2))
+    customer_price = db.Column(db.Numeric(65,2))
     deadline = db.Column(db.DateTime())
     time_created = db.Column(db.DateTime(timezone=True), server_default=func.now())
     last_edited = db.Column(db.TIMESTAMP, server_default=text("CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"), server_onupdate=FetchedValue())

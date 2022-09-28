@@ -90,7 +90,7 @@
                             <div class="card-body">
                                 <h4 class="card-title">Order #{{order.id}} Details</h4>
                                 <h6 class="card-subtitle">Date created:<code>{{order.time_created}}</code> Last updated <code>{{order.last_edited }}</code></h6>
-                                {% import 'base_templates/admin_macros.html' as macros %}
+                                {% import 'base_templates/admin/admin_macros.html' as macros %}
                                 <!---Order management form--->
                                                                 
                                 <!-- Nav tabs -->
@@ -125,6 +125,7 @@
                                     </div>
                                     
                                 </div>
+                                {{ macros.render_delete_edit_button(order)}}
                             </div>
                         </div>
                     </div>

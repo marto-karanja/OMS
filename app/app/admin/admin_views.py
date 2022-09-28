@@ -1,3 +1,4 @@
+import logging
 from bisect import bisect
 import os
 import datetime
@@ -34,6 +35,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 admin = Blueprint('admin', __name__)
 
+logger = logging.getLogger('Admin View')
 
 #------------------------------------------------------------
 
@@ -54,7 +56,7 @@ def home():
 @login_required
 def dashboard():
     page = request.args.get('page', 1, type=int)
-    orders = Orders.query.order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+    orders = Orders.query.filter(Orders.status != Status.deleted).order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
     for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
@@ -81,7 +83,7 @@ def return_page_links(items, destination_string):
 @login_required
 def all_orders():
     page = request.args.get('page', 1, type=int)
-    orders = Orders.query.order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+    orders = Orders.query.filter(Orders.status != Status.deleted).order_by(asc(Orders.deadline)).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
 
     for order in orders.items:        
         order.difference = find_time_difference(order.deadline)
@@ -226,6 +228,51 @@ def paid_orders():
     return render_template("admin/editor/paid_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
 
 
+##---return orders under disputed status
+#-------------------------------------------------------------------------
+@admin.route('/deleted_orders', methods=["GET", "POST"])
+@login_required
+def deleted_orders():
+    page = request.args.get('page', 1, type=int)
+    orders = Orders.query.filter(Orders.status == Status.deleted).paginate(page, current_app.config['POSTS_PER_PAGE'], False)
+
+    for order in orders.items:        
+        order.difference = find_time_difference(order.deadline)
+
+    prev_url, next_url = return_page_links(orders, 'admin.paid_orders')
+
+    return render_template("admin/editor/deleted_orders.html", orders = orders.items, next_url = next_url, prev_url = prev_url)
+
+
+@admin.route('/edit_order_details?<order_id>', methods = ["GET", "POST"])
+@login_required
+def edit_order_details(order_id):
+    order = Orders.query.get(order_id)
+    form = OrderForm()
+
+    form.number_words.data = order.paper_length
+    form.length_type.data = order.page_words
+    form.topic.data = order.topic
+    form.description.data = order.description
+    form.audience.data = order.audience
+    form.medium.data = order.medium
+    form.tone.data = order.tone
+    form.person.data = order.person
+    form.english_country.data = order.english_country
+    form.example.data = order.example
+    form.research_links.data = order.research_links 
+    form.seo.data = order.seo
+    form.business_description.data = order.business_description
+    form.comments.data = order.comments 
+    form.price.data = order.price
+    form.customer_price.data = order.customer_price
+    form.deadline_date.data = order.deadline.strftime('%Y-%m-%d %H:%M:%S').split()[0]
+    form.deadline_time.data = order.deadline.strftime('%Y-%m-%d %H:%M:%S').split()[1] 
+            
+    
+    return render_template("admin/editor/update_order.html", order_form = form, order_id = order_id)
+
+
 
 #------------------------------------------------------------------------
 def find_time_difference(deadline):
@@ -363,6 +410,48 @@ def reassign_current_order(order_id):
 
 
 
+####---------------------------------------------------------------------------------
+@admin.route('/delete_order?<order_id>', methods = ["GET", "POST"])
+@login_required
+
+def delete_order(order_id):
+    order = Orders.query.get(order_id)
+
+    # set status to deleted
+    order.status = Status.deleted
+
+    # save database objects
+    if save_db_objects(order):
+        msg = "Order #{} has been moved to trash folder".format(order.id)
+        flash(msg)
+        logger.info(msg)
+        return redirect(url_for('admin.deleted_orders'))
+    else:
+        msg = "Operation to delete order has been unsuccessful"
+        flash(msg)
+        logger.error(msg)
+        return redirect(url_for('admin.edit_order', order_id= order.id))
+    
+
+def save_db_objects(obj):
+    try:
+        if isinstance(obj, list):
+            for obj in obj:
+                db.session.add(obj)
+        else:
+            db.session.add(obj)
+
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        db.session.flush()
+        logger.exception("Operation was unsuccessful")
+        return False
+    else:
+        # on successful saving
+        logger.info("Objects saved to database successfully")
+        
+        return True
 
 
 
@@ -453,7 +542,7 @@ def upload_order_files(order_id):
 
         files = file_form.files.data
         saved_files = []
-        basedir = os.path.abspath(os.path.dirname(__file__))
+        basedir = os.path.abspath(os.path.dirname(current_app.instance_path))
         for file in files:
             file.save(os.path.join(basedir, current_app.config['UPLOAD_FOLDER'], file.filename))
 
@@ -765,6 +854,7 @@ def create_order():
             order.business_description = form.business_description.data
             order.comments = form.comments.data
             order.price = form.price.data
+            order.customer_price = form.customer_price.data
             order.deadline = parse(form.deadline_date.data + " " + form.deadline_time.data)
             order.editor_id = session['user_id']
             order.order_status = form.order_status.data
@@ -800,6 +890,69 @@ def create_order():
                 # on successful saving
                 flash(Markup('<a href="{}">Order #{}</a> was created and set to status [{}]. '.format(url_for('admin.edit_order', order_id = order.id), order.id, order.status.value)))
                 return redirect(url_for('admin.create_order'))
+
+
+    return render_template("admin/editor/create_order.html", order_form = form)
+
+#-------------------------------------------------------------------------------------
+@admin.route('/update_order?<order_id>', methods=["GET", "POST"])
+@login_required
+def update_order(order_id):
+    form = OrderForm()
+    if form.is_submitted():
+        if form.validate_on_submit():
+            order = Orders.query.get(order_id)
+            order.paper_length = form.number_words.data
+            order.page_words = form.length_type.data
+            order.topic = form.topic.data
+            order.description = form.description.data
+            order.audience = form.audience.data
+            order.medium = form.medium.data
+            order.tone = form.tone.data
+            order.person = form.person.data
+            order.english_country = form.english_country.data
+            order.example = form.example.data
+            order.research_links = form.research_links.data
+            order.seo = form.seo.data
+            order.business_description = form.business_description.data
+            order.comments = form.comments.data
+            order.price = form.price.data
+            order.customer_price = form.customer_price.data
+            order.deadline = parse(form.deadline_date.data + " " + form.deadline_time.data)
+            order.editor_id = session['user_id']
+            order.order_status = form.order_status.data
+
+            # create transaction
+            transaction  = OrderTransactions(
+                order = order,
+                description = "Updated order and set to status [{}]".format(order.order_status),
+                editor_id = order.editor_id
+
+            )
+            # set order in relevant table
+            
+            operation = Operations[order.order_status](
+                order = order,
+                description = "Updated order and set to status [{}]".format(order.order_status),
+                editor_id = order.editor_id
+            )
+            
+            try:
+                db.session.add(order)
+                db.session.add(transaction)
+                db.session.add(operation)
+                db.session.commit()
+            except Exception as e:
+                # for resetting non-commited .add()
+                db.session.rollback()
+                db.session.flush()
+                print("Failed to add customer")
+                flash('Database Error: Failed to record order')
+                print(e)
+            else:
+                # on successful saving
+                flash(Markup('<a href="{}">Order details for #{}</a> was updated and set to status [{}]. '.format(url_for('admin.edit_order', order_id = order.id), order.id, order.status.value)))
+                return redirect(url_for('admin.edit_order_details', order_id = order.id))
 
 
     return render_template("admin/editor/create_order.html", order_form = form)

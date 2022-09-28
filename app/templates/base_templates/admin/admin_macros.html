@@ -121,9 +121,11 @@
                 <td>
                     {{order.paper_length}} <strong>{{order.page_words.value}}</strong>
                 </td>
+                
+                
             </tr>
             <tr>
-                <th scope="row"><strong>Description:</strong></th>
+                <th scope="row"><strong>Order Instructions:</strong></th>
                 <td colspan="3" style = "white-space: pre-wrap;" >{{order.description}}</td>
             </tr>
             <tr>
@@ -149,12 +151,18 @@
                 <td colspan="3">{{order.seo}}</td>
             </tr>
             <tr>
-                <th scope="row"><strong>Business Descriptions:</strong></th>
+                <th scope="row"><strong>Client Business Description:</strong></th>
                 <td colspan="3" style = "white-space: pre-wrap;">{{order.business_description}}</td>
             </tr>
             <tr>
                 <th scope="row"><strong>Comments:</strong></th>
                 <td colspan="3">{{order.comments}}</td>
+            </tr>
+            <tr>
+                <th scope="row"><strong>Customer Payment:</strong></th>
+                <td>KES {{order.customer_price}}/=</td>
+                <th scope="row"><strong>Amount Paid</strong></th>
+                <td> KES {{ order.price }}/= </td>
             </tr>
         </tbody>
     </table>
@@ -501,6 +509,8 @@
         <i class="fa fa-circle text-warning" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
         {% elif status.value == "Paid" %}
         <i class="fa fa-circle text-info" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
+        {% elif status.value == "Deleted" %}
+        <i class="fa fa-circle text-danger" data-toggle="tooltip" data-placement="top" title="" data-original-title="{{status.value}}"></i> {{status.value}}
     {% endif %}
 {% endmacro%}
 
@@ -509,12 +519,28 @@
     <nav aria-label="Page navigation example">
         <ul class="pagination justify-content-center">
             {% if prev_url %}
-                <li class="page-item"><a class="page-link" href="{{ prev_url }}">Previous</a></li>
+                <li class="page-item"><a class="page-link" href="{{ prev_url }}">Previous Page</a></li>
             {% endif %}
             {% if next_url %}
-                <li class="page-item"><a class="page-link" href="{{ next_url }}">Next</a></li>
+                <li class="page-item"><a class="page-link" href="{{ next_url }}">Next Page</a></li>
             {% endif %}
         </ul>
     </nav>
+</div>
+{% endmacro %}
+
+{% macro render_delete_edit_button(order) %}
+<div class="row">
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-3">
+    </div>
+    <div class="col-md-3">
+            <a  class="btn btn-warning btn-block" href = "{{ url_for('admin.edit_order_details', order_id = order.id) }}">Edit Order</a>
+    </div>
+    <div class="col-md-3">
+            <a  class="btn btn-danger btn-block" href = "{{ url_for('admin.delete_order', order_id = order.id) }}">Delete  Order</a>
+    </div>
+
 </div>
 {% endmacro %}

@@ -1,12 +1,11 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Payment Dashboard - OMS{% endblock %}
+{% block title %}Deleted Orders - OMS {% endblock %}
 {% block head %}
     {{ super() }}
 
        <!-- Custom CSS -->
        <link href="static/oms/gigs/assets/libs/chartist/dist/chartist.min.css" rel="stylesheet">
        <link href="static/oms/gigs/assets/extra-libs/c3/c3.min.css" rel="stylesheet">
-       <link href="static/oms/gigs/assets/libs/bootstrap-table/dist/bootstrap-table.min.css" rel="stylesheet" type="text/css" />
        <!-- Custom CSS -->
        <link href="static/oms/gigs/dist/css/style.min.css" rel="stylesheet">
        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -43,16 +42,27 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">Admin payment Dashboard</h4>
+                        <h4 class="page-title">Deleted Orders</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
-                                    <li class="breadcrumb-item"><a href="{{url_for('writer.dashboard')}}">Home</a></li>
-                                    <li class="breadcrumb-item active" aria-current="page">Writers overview</li>
+                                    <li class="breadcrumb-item"><a href="{{url_for('admin.dashboard')}}">Home</a></li>
+                                    <li class="breadcrumb-item active" aria-current="page">Paid Orders</li>
                                 </ol>
                             </nav>
                         </div>
                     </div>
+                    <!--Remove  summary section-->
+                    <!--
+                    <div class="col-7 align-self-center">
+                        <div class="d-flex no-block justify-content-end align-items-center">
+                            <div class="mr-2">
+                                <div class="lastmonth"></div>
+                            </div>
+                            <div class=""><small>LAST MONTH</small>
+                                <h4 class="text-info mb-0 font-medium">$58,256</h4></div>
+                        </div>
+                    </div>-->
                 </div>
             </div>
             <!-- ============================================================== -->
@@ -65,6 +75,18 @@
                 <!-- ============================================================== -->
 
                 <!---Content ???-->
+                <div class = "row">
+                    <!---Display messages-->
+                    
+                    <div class="col-sm-12">
+                        {% for message in get_flashed_messages() %}
+                            <!-- Dissmissal Alert -->
+                            <div class="alert alert-primary"> <i class="ti-user"></i> {{ message }}
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
                 <div class="row">
                     <!-- Column -->
                             <div class="col-lg-12">
@@ -72,8 +94,8 @@
                                     <div class="card-body">
                                         <div class="d-md-flex align-items-center">
                                             <div>
-                                                <h4 class="card-title">Financial Overview</h4>
-                                                <h5 class="card-subtitle">Overview of writers payment report</h5>
+                                                <h4 class="card-title"> Deleted Orders Overview</h4>
+                                                <h5 class="card-subtitle">Overview of Deleted Orders</h5>
                                             </div>
                                             <div class="ml-auto d-flex no-block align-items-center">
                                                 <div class="dl">
@@ -86,17 +108,11 @@
                                                 </div>
                                             </div>
                                         </div>
-
-                                        
+                                        {% import 'base_templates/admin/admin_macros.html' as macros %}
+                                        {{ macros.render_orders_table(orders) }}
                                     </div>
+                                    {{ macros.render_pagination(prev_url, next_url) }}
                                 </div>
-                                <!------Content------------------------------>
-                                {% import 'base_templates/admin/admin_macros.html' as macros %}
-                                {{ macros.render_unpaid_orders(orders, form, zip) }}
-                                
-
-
-                            <!------Content------------------------------>
                             </div>
                 </div>
                 <!----Content ends-->
@@ -142,10 +158,5 @@
     <!--Custom JavaScript -->
     <script src="static/oms/gigs/dist/js/custom.min.js"></script>
     <!--This page JavaScript -->
-    
-    <!-- This Page JS -->
-    <script src="static/oms/gigs/assets/libs/bootstrap-table/dist/bootstrap-table.min.js"></script>
-    <script src="static/oms/gigs/assets/libs/bootstrap-table/dist/bootstrap-table-locale-all.min.js"></script>
-    <script src="static/oms/gigs/dist/js/pages/tables/bootstrap-table.init.js"></script>
 
 {% endblock %}

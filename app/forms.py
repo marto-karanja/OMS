@@ -86,6 +86,7 @@ class OrderForm(FlaskForm):
     business_description = TextAreaField("Description about your business:")
     comments = StringField("Any other comments?:")
     price = DecimalField("Price:", places=2)
+    customer_price = DecimalField("Customer Price:", places=2)
     deadline_date = StringField("Due day:", validators=[InputRequired()])
     deadline_time = StringField("Due time:", validators=[InputRequired()])
     order_status = SelectField('Order Status:', validators=[InputRequired()], choices = [(Status.unassigned.name, Status.unassigned.value), (Status.bid_status.name, Status.bid_status.value)])

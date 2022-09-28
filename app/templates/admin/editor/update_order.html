@@ -1,5 +1,5 @@
 {% extends "base_templates/base.html" %}
-{% block title %}Orders Dashboard {% endblock %}
+{% block title %}Update Order Details - OMS{% endblock %}
 {% block head %}
     {{ super() }}
 
@@ -46,7 +46,7 @@
             <div class="page-breadcrumb">
                 <div class="row">
                     <div class="col-5 align-self-center">
-                        <h4 class="page-title">Editor's Dashboard: Create New Order</h4>
+                        <h4 class="page-title">Editor's Dashboard: Update Order Details</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb">
@@ -94,8 +94,8 @@
                     <div class="col-sm-1"></div>
                     <div class="col-sm-10">
                         <div class="card card-body">
-                            <h4 class="card-title">Create Order</h4>
-                            <h5 class="card-subtitle"> Enter order details </h5>
+                            <h4 class="card-title">Update order detailsr</h4>
+                            <h5 class="card-subtitle"> Edit order details </h5>
                             {% if order_form.errors %}
                                     {% for field in order_form.errors %}
                                         {% for error in order_form.errors[field] %}
@@ -105,7 +105,7 @@
                                         {% endfor %}
                                     {% endfor %}
                                 {% endif %}
-                            <form method = "post" action="{{ url_for('admin.create_order')}}" class="form-horizontal mt-4">
+                            <form method = "post" action="{{ url_for('admin.update_order', order_id = order_id)}}" class="form-horizontal mt-4">
                                 {{ order_form.csrf_token }}
                                 <div class="form-group">
                                     <div class="row">
@@ -177,7 +177,8 @@
                                         <div class="col-lg-6">
                                             <label>{{order_form.customer_price.label}}</label>                                  {{ order_form.customer_price( class="form-control", placeholder = "KES 0.0")}}
                                         </div>
-                                    </div>                        
+                                    </div>
+                                    
 
                                 </div>
                                 <div class="row">
@@ -216,7 +217,7 @@
                                     <label>{{order_form.order_status.label}}</label>
                                     {{ order_form.order_status( class="form-control")}}
                                 </div>
-                                <button type="submit" class="btn btn-rounded btn-lg btn-primary">Create Order</button>
+                                <button type="submit" class="btn btn-rounded btn-lg btn-primary">Update Order Details</button>
                             </form>
                         </div>
                     </div>
